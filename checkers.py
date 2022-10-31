@@ -17,6 +17,7 @@ BROWN = (121, 65, 0)
 ORANGE = (235, 168, 52)
 BLUE = (76, 252, 241)
 
+
 class Node:
     def __init__(self, row, col, width):
         self.row = row
@@ -168,7 +169,7 @@ def main(size, rows):
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                print("EXIT SUCCESSFUL")
+                print("exit successful")
                 pygame.quit()
                 sys.exit()
 
