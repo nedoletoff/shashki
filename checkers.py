@@ -6,24 +6,16 @@ from itertools import combinations
 SIZE = 800
 ROWS = 8
 
-WHITE_CAT = pygame.image.load('.\\images\\white.png')
-GREY_CAT = pygame.image.load('.\\images\\grey.png')
+gray_cat = pygame.image.load(".\\images\\gray.png")
+white_cat = pygame.image.load(".\\images\\white.png")
 
-WHITE_KING = pygame.image.load('.\\images\\white_king.png')
-GRAY_KING = pygame.image.load('.\\images\\grey_king.png')
+gray_king = pygame.image.load(".\\images\\gray_king.png")
+white_king = pygame.image.load(".\\images\\white_king.png")
 
 TAN = (255, 243, 146)
 BROWN = (121, 65, 0)
 ORANGE = (235, 168, 52)
 BLUE = (76, 252, 241)
-
-pygame.init()
-WIN = pygame.display.set_mode((SIZE, SIZE))
-pygame.display.set_caption('Кошашки')
-pygame.display.set_icon(pygame.image.load(".\\images\\cotologo.png"))
-
-priorMoves = []
-
 
 class Node:
     def __init__(self, row, col, width):
@@ -59,9 +51,9 @@ def make_grid(rows, width):
             if abs(i - j) % 2 == 0:
                 node.colour = BROWN
             if (abs(i + j) % 2 == 0) and (i < 3):
-                node.piece = Piece('R')
+                node.piece = Piece("white_cat")
             elif (abs(i + j) % 2 == 0) and i > 4:
-                node.piece = Piece('G')
+                node.piece = Piece("gray_cat")
             count += 1
             grid[i].append(node)
     return grid
@@ -78,7 +70,7 @@ def draw_grid(win, rows, width):
 class Piece:
     def __init__(self, team):
         self.team = team
-        self.image = WHITE_CAT if self.team == 'R' else GREY_CAT
+        self.image = gray_cat if self.team == "white_cat" else white_cat
         self.type = None
 
     def draw(self, x, y):
@@ -110,7 +102,7 @@ def highlight_potential_moves(piece_position, grid):
 
 
 def opposite(team):
-    return "R" if team == "G" else "G"
+    return "white_cat" if team == "gray_cat" else "gray_cat"
 
 
 def generate_potential_moves(node_position, grid):
@@ -118,13 +110,12 @@ def generate_potential_moves(node_position, grid):
     positions = []
     column, row = node_position
     if grid[column][row].piece:
-        vectors = [[1, -1], [1, 1]] if grid[column][row].piece.team == "R" else [[-1, -1], [-1, 1]]
-        if grid[column][row].piece.type == 'KING':
+        vectors = [[1, -1], [1, 1]] if grid[column][row].piece.team == "white_cat" else [[-1, -1], [-1, 1]]
+        if grid[column][row].piece.type == "king":
             vectors = [[1, -1], [1, 1], [-1, -1], [-1, 1]]
         for vector in vectors:
             column_vector, row_vector = vector
             if checker(column_vector, column) and checker(row_vector, row):
-                # grid[(column+column_vector)][(row+row_vector)].colour=ORANGE
                 if not grid[(column + column_vector)][(row + row_vector)].piece:
                     positions.append((column + column_vector, row + row_vector))
                 elif grid[column + column_vector][row + row_vector].piece and \
@@ -156,12 +147,12 @@ def move(grid, piece_position, new_position):
     grid[new_column][new_row].piece = piece
     grid[old_column][old_row].piece = None
 
-    if new_column == 7 and grid[new_column][new_row].piece.team == 'R':
-        grid[new_column][new_row].piece.type = 'KING'
-        grid[new_column][new_row].piece.image = WHITE_KING
-    if new_column == 0 and grid[new_column][new_row].piece.team == 'G':
-        grid[new_column][new_row].piece.type = 'KING'
-        grid[new_column][new_row].piece.image = GRAY_KING
+    if new_column == 7 and grid[new_column][new_row].piece.team == "white_cat":
+        grid[new_column][new_row].piece.type = "king"
+        grid[new_column][new_row].piece.image = gray_king
+    if new_column == 0 and grid[new_column][new_row].piece.team == "gray_cat":
+        grid[new_column][new_row].piece.type = "king"
+        grid[new_column][new_row].piece.image = white_king
     if abs(new_column - old_column) == 2 or abs(new_row - old_row) == 2:
         grid[int((new_column + old_column) / 2)][int((new_row + old_row) / 2)].piece = None
         return grid[new_column][new_row].piece.team
@@ -172,12 +163,12 @@ def main(size, rows):
     global piece_column, piece_row
     grid = make_grid(rows, size)
     highlighted_piece = None
-    curr_move = 'G'
+    curr_move = "gray_cat"
 
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                print('EXIT SUCCESSFUL')
+                print("EXIT SUCCESSFUL")
                 pygame.quit()
                 sys.exit()
 
@@ -201,4 +192,10 @@ def main(size, rows):
 
 
 if __name__ == "__main__":
+    pygame.init()
+    WIN = pygame.display.set_mode((SIZE, SIZE))
+    pygame.display.set_caption("Кошашки")
+    pygame.display.set_icon(pygame.image.load(".\\images\\cotologo.png"))
+
+    priorMoves = []
     main(SIZE, ROWS)
