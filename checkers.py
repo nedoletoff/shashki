@@ -3,7 +3,7 @@ import random
 import sys
 from itertools import combinations
 
-WIDTH = 800
+SIZE = 800
 ROWS = 8
 
 WHITE_CAT = pygame.image.load('.\\images\\white.png')
@@ -18,8 +18,9 @@ ORANGE = (235, 168, 52)
 BLUE = (76, 252, 241)
 
 pygame.init()
-WIN = pygame.display.set_mode((WIDTH, WIDTH))
+WIN = pygame.display.set_mode((SIZE, SIZE))
 pygame.display.set_caption('Кошашки')
+pygame.display.set_icon(pygame.image.load(".\\images\\cotologo.png"))
 
 priorMoves = []
 
@@ -33,10 +34,10 @@ class Node:
         self.colour = TAN
         self.piece = None
 
-    def draw(self, WIN):
-        pygame.draw.rect(WIN, self.colour, (self.x, self.y, WIDTH / ROWS, WIDTH / ROWS))
+    def draw(self, win):
+        pygame.draw.rect(win, self.colour, (self.x, self.y, SIZE / ROWS, SIZE / ROWS))
         if self.piece:
-            WIN.blit(self.piece.image, (self.x, self.y))
+            win.blit(self.piece.image, (self.x, self.y))
 
 
 def update_display(win, grid, rows, width):
@@ -84,98 +85,94 @@ class Piece:
         WIN.blit(self.image, (x, y))
 
 
-def getNode(rows, width):
+def get_node(rows, width):
     gap = width // rows
-    RowX, RowY = pygame.mouse.get_pos()
-    Row = RowX // gap
-    Col = RowY // gap
-    return Col, Row
+    row_x, row_y = pygame.mouse.get_pos()
+    row = row_x // gap
+    col = row_y // gap
+    return col, row
 
 
-def resetColours(grid, node):
-    positions = generatePotentialMoves(node, grid)
+def reset_colours(grid, node):
+    positions = generate_potential_moves(node, grid)
     positions.append(node)
 
     for colouredNodes in positions:
-        nodeX, nodeY = colouredNodes
-        grid[nodeX][nodeY].colour = BROWN if abs(nodeX - nodeY) % 2 == 0 else TAN
+        node_x, node_y = colouredNodes
+        grid[node_x][node_y].colour = BROWN if abs(node_x - node_y) % 2 == 0 else TAN
 
 
-def HighlightpotentialMoves(piecePosition, grid):
-    positions = generatePotentialMoves(piecePosition, grid)
+def highlight_potential_moves(piece_position, grid):
+    positions = generate_potential_moves(piece_position, grid)
     for position in positions:
-        Column, Row = position
-        grid[Column][Row].colour = BLUE
+        column, row = position
+        grid[column][row].colour = BLUE
 
 
 def opposite(team):
     return "R" if team == "G" else "G"
 
 
-def generatePotentialMoves(nodePosition, grid):
+def generate_potential_moves(node_position, grid):
     checker = lambda x, y: 0 <= x + y < 8
     positions = []
-    column, row = nodePosition
+    column, row = node_position
     if grid[column][row].piece:
         vectors = [[1, -1], [1, 1]] if grid[column][row].piece.team == "R" else [[-1, -1], [-1, 1]]
         if grid[column][row].piece.type == 'KING':
             vectors = [[1, -1], [1, 1], [-1, -1], [-1, 1]]
         for vector in vectors:
-            columnVector, rowVector = vector
-            if checker(columnVector, column) and checker(rowVector, row):
-                # grid[(column+columnVector)][(row+rowVector)].colour=ORANGE
-                if not grid[(column + columnVector)][(row + rowVector)].piece:
-                    positions.append((column + columnVector, row + rowVector))
-                elif grid[column + columnVector][row + rowVector].piece and \
-                        grid[column + columnVector][row + rowVector].piece.team == opposite(
+            column_vector, row_vector = vector
+            if checker(column_vector, column) and checker(row_vector, row):
+                # grid[(column+column_vector)][(row+row_vector)].colour=ORANGE
+                if not grid[(column + column_vector)][(row + row_vector)].piece:
+                    positions.append((column + column_vector, row + row_vector))
+                elif grid[column + column_vector][row + row_vector].piece and \
+                        grid[column + column_vector][row + row_vector].piece.team == opposite(
                     grid[column][row].piece.team):
 
-                    if checker((2 * columnVector), column) and checker((2 * rowVector), row) \
-                            and not grid[(2 * columnVector) + column][(2 * rowVector) + row].piece:
-                        positions.append((2 * columnVector + column, 2 * rowVector + row))
+                    if checker((2 * column_vector), column) and checker((2 * row_vector), row) \
+                            and not grid[(2 * column_vector) + column][(2 * row_vector) + row].piece:
+                        positions.append((2 * column_vector + column, 2 * row_vector + row))
 
     return positions
 
 
-"""
-Error with locating opssible moves row col error
-"""
+def highlight(clicked_node, grid, old_highlight):
+    column, row = clicked_node
+    grid[column][row].colour = ORANGE
+    if old_highlight:
+        reset_colours(grid, old_highlight)
+    highlight_potential_moves(clicked_node, grid)
+    return column, row
 
 
-def highlight(ClickedNode, Grid, OldHighlight):
-    Column, Row = ClickedNode
-    Grid[Column][Row].colour = ORANGE
-    if OldHighlight:
-        resetColours(Grid, OldHighlight)
-    HighlightpotentialMoves(ClickedNode, Grid)
-    return (Column, Row)
+def move(grid, piece_position, new_position):
+    reset_colours(grid, piece_position)
+    new_column, new_row = new_position
+    old_column, old_row = piece_position
+
+    piece = grid[old_column][old_row].piece
+    grid[new_column][new_row].piece = piece
+    grid[old_column][old_row].piece = None
+
+    if new_column == 7 and grid[new_column][new_row].piece.team == 'R':
+        grid[new_column][new_row].piece.type = 'KING'
+        grid[new_column][new_row].piece.image = WHITE_KING
+    if new_column == 0 and grid[new_column][new_row].piece.team == 'G':
+        grid[new_column][new_row].piece.type = 'KING'
+        grid[new_column][new_row].piece.image = GRAY_KING
+    if abs(new_column - old_column) == 2 or abs(new_row - old_row) == 2:
+        grid[int((new_column + old_column) / 2)][int((new_row + old_row) / 2)].piece = None
+        return grid[new_column][new_row].piece.team
+    return opposite(grid[new_column][new_row].piece.team)
 
 
-def move(grid, piecePosition, newPosition):
-    resetColours(grid, piecePosition)
-    newColumn, newRow = newPosition
-    oldColumn, oldRow = piecePosition
-
-    piece = grid[oldColumn][oldRow].piece
-    grid[newColumn][newRow].piece = piece
-    grid[oldColumn][oldRow].piece = None
-
-    if newColumn == 7 and grid[newColumn][newRow].piece.team == 'R':
-        grid[newColumn][newRow].piece.type = 'KING'
-        grid[newColumn][newRow].piece.image = WHITE_KING
-    if newColumn == 0 and grid[newColumn][newRow].piece.team == 'G':
-        grid[newColumn][newRow].piece.type = 'KING'
-        grid[newColumn][newRow].piece.image = GRAY_KING
-    if abs(newColumn - oldColumn) == 2 or abs(newRow - oldRow) == 2:
-        grid[int((newColumn + oldColumn) / 2)][int((newRow + oldRow) / 2)].piece = None
-        return grid[newColumn][newRow].piece.team
-    return opposite(grid[newColumn][newRow].piece.team)
-
-
-def main(WIDTH, ROWS):
-    grid = make_grid(ROWS, WIDTH)
-    highlightedPiece = None
-    currMove = 'G'
+def main(size, rows):
+    global piece_column, piece_row
+    grid = make_grid(rows, size)
+    highlighted_piece = None
+    curr_move = 'G'
 
     while True:
         for event in pygame.event.get():
@@ -185,22 +182,23 @@ def main(WIDTH, ROWS):
                 sys.exit()
 
             if event.type == pygame.MOUSEBUTTONDOWN:
-                clickedNode = getNode(ROWS, WIDTH)
-                ClickedPositionColumn, ClickedPositionRow = clickedNode
-                if grid[ClickedPositionColumn][ClickedPositionRow].colour == BLUE:
-                    if highlightedPiece:
-                        pieceColumn, pieceRow = highlightedPiece
-                    if currMove == grid[pieceColumn][pieceRow].piece.team:
-                        resetColours(grid, highlightedPiece)
-                        currMove = move(grid, highlightedPiece, clickedNode)
-                elif highlightedPiece == clickedNode:
+                clicked_node = get_node(rows, size)
+                clicked_position_column, clicked_position_row = clicked_node
+                if grid[clicked_position_column][clicked_position_row].colour == BLUE:
+                    if highlighted_piece:
+                        piece_column, piece_row = highlighted_piece
+                    if curr_move == grid[piece_column][piece_row].piece.team:
+                        reset_colours(grid, highlighted_piece)
+                        curr_move = move(grid, highlighted_piece, clicked_node)
+                elif highlighted_piece == clicked_node:
                     pass
                 else:
-                    if grid[ClickedPositionColumn][ClickedPositionRow].piece:
-                        if currMove == grid[ClickedPositionColumn][ClickedPositionRow].piece.team:
-                            highlightedPiece = highlight(clickedNode, grid, highlightedPiece)
+                    if grid[clicked_position_column][clicked_position_row].piece:
+                        if curr_move == grid[clicked_position_column][clicked_position_row].piece.team:
+                            highlighted_piece = highlight(clicked_node, grid, highlighted_piece)
 
-        update_display(WIN, grid, ROWS, WIDTH)
+        update_display(WIN, grid, rows, size)
 
 
-main(WIDTH, ROWS)
+if __name__ == "__main__":
+    main(SIZE, ROWS)
