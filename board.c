@@ -55,7 +55,7 @@ int check_cat(Board board, int height, int width) {
     else
         printf("cell %d - height, %d - width doesnt contain cat\n",
          height, width);
-         return 0;
+    return 0;
 }
 
 int remove_cat(Board* board, int height, int width) {
