@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "list_t.h"
+#include "coordinates_list.h"
 
 void init(list_t* l)		//O(1)
 {
