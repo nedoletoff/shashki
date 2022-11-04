@@ -6,11 +6,11 @@ from itertools import combinations
 SIZE = 800
 ROWS = 8
 
-gray_cat = pygame.image.load(".\\images\\gray.png")
-white_cat = pygame.image.load(".\\images\\white.png")
+grey_cat = pygame.image.load(r".\images\grey.png")
+white_cat = pygame.image.load(r".\images\white.png")
 
-gray_king = pygame.image.load(".\\images\\gray_king.png")
-white_king = pygame.image.load(".\\images\\white_king.png")
+grey_king = pygame.image.load(r".\images\grey_king.png")
+white_king = pygame.image.load(r".\images\white_king.png")
 
 TAN = (255, 243, 146)
 BROWN = (121, 65, 0)
@@ -54,7 +54,7 @@ def make_grid(rows, width):
             if (abs(i + j) % 2 == 0) and (i < 3):
                 node.piece = Piece("white_cat")
             elif (abs(i + j) % 2 == 0) and i > 4:
-                node.piece = Piece("gray_cat")
+                node.piece = Piece("grey_cat")
             count += 1
             grid[i].append(node)
     return grid
@@ -71,7 +71,7 @@ def draw_grid(win, rows, width):
 class Piece:
     def __init__(self, team):
         self.team = team
-        self.image = gray_cat if self.team == "white_cat" else white_cat
+        self.image = grey_cat if self.team == "white_cat" else white_cat
         self.type = None
 
     def draw(self, x, y):
@@ -103,7 +103,7 @@ def highlight_potential_moves(piece_position, grid):
 
 
 def opposite(team):
-    return "white_cat" if team == "gray_cat" else "gray_cat"
+    return "white_cat" if team == "grey_cat" else "grey_cat"
 
 
 def generate_potential_moves(node_position, grid):
@@ -150,8 +150,8 @@ def move(grid, piece_position, new_position):
 
     if new_column == 7 and grid[new_column][new_row].piece.team == "white_cat":
         grid[new_column][new_row].piece.type = "king"
-        grid[new_column][new_row].piece.image = gray_king
-    if new_column == 0 and grid[new_column][new_row].piece.team == "gray_cat":
+        grid[new_column][new_row].piece.image = grey_king
+    if new_column == 0 and grid[new_column][new_row].piece.team == "grey_cat":
         grid[new_column][new_row].piece.type = "king"
         grid[new_column][new_row].piece.image = white_king
     if abs(new_column - old_column) == 2 or abs(new_row - old_row) == 2:
@@ -164,7 +164,7 @@ def main(size, rows):
     global piece_column, piece_row
     grid = make_grid(rows, size)
     highlighted_piece = None
-    curr_move = "gray_cat"
+    curr_move = "grey_cat"
 
     while True:
         for event in pygame.event.get():
