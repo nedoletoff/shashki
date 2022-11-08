@@ -12,19 +12,19 @@ typedef struct node_t
 	struct node_t* next;
 } node_t;
 
-typedef struct
+typedef struct coordinates_list
 {
 	node_t* head;
 	node_t* tail;
 	int size;
-} list_t;
+} coordinates_list;
 
-void init(list_t*);
-void destroy(list_t*);
-void push_back(list_t*, coordinates);
-void print(list_t*);
-int set(list_t*, int, coordinates);
-int get(list_t*, int, coordinates*);
-void erase(list_t*, node_t*);
-void pop_back(list_t*, coordinates*);
+void init(coordinates_list*);
+void destroy(coordinates_list*);
+void push_back(coordinates_list*, coordinates);
+void print(coordinates_list*);
+int set(coordinates_list*, int, coordinates);
+int get(coordinates_list*, int, coordinates*);
+void erase(coordinates_list*, node_t*);
+void pop_back(coordinates_list*, coordinates*);
 

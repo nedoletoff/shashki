@@ -1,5 +1,7 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "board.h"
+#include "coordinates_list.h"
 
 
 Board initBoard() {
@@ -26,21 +28,21 @@ int get_grey_num(Board board) {
     return board.grey_num;
 }
 
-char get_cat(Board board, coordinates coords) {
-    if (coords.height < 0 || coords.height >= 8) {
-        printf("Wrong coords.height - %d\n", coords.height);
+char get_cat(Board board, coordinates cords) {
+    if (cords.height < 0 || cords.height >= 8) {
+        printf("Wrong cords.height - %d\n", cords.height);
         return 0;
     }
-    if (coords.width < 0 || coords.width >= 8) {
-        printf("Wrong coords.width - %d\n", coords.width);
+    if (cords.width < 0 || cords.width >= 8) {
+        printf("Wrong cords.width - %d\n", cords.width);
         return 0;
     }
 
-    return board.grid[coords.height][coords.width];
+    return board.grid[cords.height][cords.width];
 }
 
-int check_cat(Board board, coordinates coords) {
-    char cat = get_cat(board, coords);
+int check_cat(Board board, coordinates cords) {
+    char cat = get_cat(board, cords);
     if (cat == 'W' || cat == 'w') {
         return 1;
     }
@@ -48,35 +50,44 @@ int check_cat(Board board, coordinates coords) {
         return 1;
     }
     else
-        printf("cell %d - coords.height, %d - coords.width doesnt contain cat\n",
-         coords.height, coords.width);
+        printf("cell %d - cords.height, %d - cords.width doesnt contain cat\n",
+         cords.height, cords.width);
     return 0;
 }
 
-int remove_cat(Board* board, coordinates coords) {
-    char cat = get_cat(*board, coords);
+int check_coordinates(coordinates coords) {
+    if (coords.height >= 8 || coord.height < 0)
+        return 1;
 
-    if (!check_cat(*board, coords))
+    if (coords.width >= 8 || coord.width < 0)
+        return 1;
+    return 0;
+}
+
+int remove_cat(Board* board, coordinates cords) {
+    char cat = get_cat(*board, cords);
+
+    if (!check_cat(*board, cords))
         return 1;
     if (cat == 'W' || cat == 'w') {
         board->white_num--;
-        board->grid[coords.height][coords.width] = ' ';
+        board->grid[cords.height][cords.width] = ' ';
         return 0;
     }
     else if (cat == 'G' || cat == 'g') {
         board->grey_num--;
-        board->grid[coords.height][coords.width] = ' ';
+        board->grid[cords.height][cords.width] = ' ';
         return 0;
     }
     return 1;
 }
 
-int make_king(Board* board, coordinates coords) {
-    char cat = get_cat(*board, coords);
-    if (cat == 'w' && coords.height == 0)
-        board->grid[coords.height][coords.width] = 'W';
-    else if (cat == 'g' && coords.height == 7)
-        board->grid[coords.height][coords.width] = 'G';
+int make_king(Board* board, coordinates cords) {
+    char cat = get_cat(*board, cords);
+    if (cat == 'w' && cords.height == 0)
+        board->grid[cords.height][cords.width] = 'W';
+    else if (cat == 'g' && cords.height == 7)
+        board->grid[cords.height][cords.width] = 'G';
     else {
         printf("Cant make king\n");
         return 1;
@@ -86,8 +97,11 @@ int make_king(Board* board, coordinates coords) {
 
 
 
-int add_cat(Board* board, char cat, coordinates coords) {
-    if ((coords.height + coords.width) % 2) {
+int add_cat(Board* board, char cat, coordinates cords) {
+    if (check_coordinates(cords)) {
+        printf("Out of board\n");
+        return 4;
+    if ((cords.height + cords.width) % 2) {
         printf("Not brown cell\n");
         return 2;
     }
@@ -99,28 +113,69 @@ int add_cat(Board* board, char cat, coordinates coords) {
         printf("Wrong cat\n");
         return 3;
     }
-    board->grid[coords.height][coords.width] = cat;
+    board->grid[cords.height][cords.width] = cat;
     return 0;
-}
-
-int can_move(Board board, coordinates coords1, coordinates coords2) {
-    if (!check_cat(board, coords1))
-        return 1;
-
-    char my_cat = get_cat(board, coords1);
-    if (my_cat == 0)
-        return 1;
-    if (my_cat == 'g') {
-
     }
 }
 
-int move_cat(Board* board, coordinates coords1, coordinates coords2) {
-    char cat = get_cat(*board, coords1);
-    int res = remove_cat(board, coords1);
+int usual_eat(Board* board, coordinates first, coordinates end) {
+    if (abs(first.height - end.height) != 2) {
+        printf("Cant eat");
+        return 1;
+    }
+    else {
+        coordinates enemy;
+        if (first.width > end.width && first.height > end.height) {
+            enemy.height = first.height - 1;
+            enemy.width =  first.width - 1;
+        }
+        else if (first.width > end.width && first.height < end.height) {
+            enemy.height = first.height + 1;
+            enemy.width =  first.width - 1;
+        }
+        else if (first.width < end.width && first.height > end.height) {
+            enemy.height = first.height - 1;
+            enemy.width =  first.width + 1;
+        }
+        else if (first.width < end.width && first.height < end.height) {
+            enemy.height = first.height + 1;
+            enemy.width =  first.width + 1;
+        }
+
+        remove_cat(board, enemy);
+    }
+    return 0;
+}
+
+int move(Board* board, coordinates first, coordinates end) {
+
+}
+
+
+int usual_can_move(Board board, coordinates cords1, coordinates cords2, coordinates_list* res) {
+    if (check_coordinates(cords1))
+        return 1;
+    if (check_coordinates(cords2))
+        return 1;
+    if (!check_cat(board, cords1))
+        return 1;
+
+    coordinates_list list;
+    init(&list);
+
+    char my_cat = get_cat(board, cords1);
+    if (my_cat == 0 || my_cat == ' ')
+        return 1;
+    if (my_cat == 'g') {
+    }
+}
+
+int move_cat(Board* board, coordinates cords1, coordinates cords2) {
+    char cat = get_cat(*board, cords1);
+    int res = remove_cat(board, cords1);
     if (res)
         return res;
-    return add_cat(board, cat, coords2);
+    return add_cat(board, cat, cords2);
 }
 
 void print_board(Board board) {

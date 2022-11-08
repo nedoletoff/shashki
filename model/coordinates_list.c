@@ -2,14 +2,14 @@
 #include <stdlib.h>
 #include "coordinates_list.h"
 
-void init(list_t* l)		//O(1)
+void init(coordinates_list* l)		//O(1)
 {
 	l->head = NULL;
 	l->tail = NULL;
 	l->size = 0;
 }
 
-void destroy(list_t* l)		//O(n)
+void destroy(coordinates_list* l)		//O(n)
 {
 	node_t* cur = l->head;
 	node_t* perv = NULL;
@@ -21,7 +21,7 @@ void destroy(list_t* l)		//O(n)
 	}
 }
 
-void push_back(list_t* l, coordinates val)	//O(1)
+void push_back(coordinates_list* l, coordinates val)	//O(1)
 {
 	node_t* n;
 	node_t* cur;
@@ -42,7 +42,7 @@ void push_back(list_t* l, coordinates val)	//O(1)
 	++l->size;
 }
 
-void print(list_t* l)		//O(n)
+void print(coordinates_list* l)		//O(n)
 {
 	node_t*cur = l->head;
 	while (cur != NULL)
@@ -53,7 +53,7 @@ void print(list_t* l)		//O(n)
 	printf("\n");
 }
 
-int set(list_t* l, int i, coordinates val)	//O(n)
+int set(coordinates_list* l, int i, coordinates val)	//O(n)
 {
 	node_t* cur = l->head;
 	int count = 0;
@@ -67,7 +67,7 @@ int set(list_t* l, int i, coordinates val)	//O(n)
 	return 0;
 }
 
-int get(list_t* l, int i, coordinates* ans)	//O(n)
+int get(coordinates_list* l, int i, coordinates* ans)	//O(n)
 {
 	node_t* cur = l->head;
 	int count = 0;
@@ -81,7 +81,7 @@ int get(list_t* l, int i, coordinates* ans)	//O(n)
 	return 0;
 }
 
-void insert(list_t* l, node_t* cur, coordinates val)	//O(1)
+void insert(coordinates_list* l, node_t* cur, coordinates val)	//O(1)
 {
 	node_t* n = (node_t*) malloc(sizeof(node_t));
 	if (cur == l->tail)
@@ -94,7 +94,7 @@ void insert(list_t* l, node_t* cur, coordinates val)	//O(1)
 	++l->size;
 }
 
-void erase(list_t* l, node_t* cur)	//O(1)
+void erase(coordinates_list* l, node_t* cur)	//O(1)
 {
 	if (cur == l->tail)
 		l->tail = cur->prev;
@@ -113,7 +113,7 @@ void erase(list_t* l, node_t* cur)	//O(1)
 	--l->size;
 }
 
-void push_front(list_t* l, coordinates val)	//O(1)
+void push_front(coordinates_list* l, coordinates val)	//O(1)
 {
 	node_t* n = (node_t*) malloc(sizeof(node_t));
 	if (l->tail == l->head)
@@ -126,7 +126,7 @@ void push_front(list_t* l, coordinates val)	//O(1)
 	++l->size;
 }
 
-void pop_back(list_t* l, coordinates* res)
+void pop_back(coordinates_list* l, coordinates* res)
 {
   node_t* cur = l->tail;
   res->height = cur->value.height;
