@@ -22,7 +22,7 @@ Board initBoard() {
     return res;
 }
 
-char uper_case(char val) {
+char upper_case(char val) {
     return val + ('A' - 'a');
 }
 
@@ -57,21 +57,21 @@ void change_turn(Board* board) {
         board->turn = 'w';
 }
 
-char get_cat(Board* board, coordinates coords) {
-    if (coords.height < 0 || coords.height >= 8) {
-        printf("Wrong coords.height - %d\n", coords.height);
+char get_cat(Board* board, coordinates cords) {
+    if (cords.height < 0 || cords.height >= 8) {
+        printf("Wrong cords.height - %d\n", cords.height);
         return 0;
     }
-    if (coords.width < 0 || coords.width >= 8) {
-        printf("Wrong coords.width - %d\n", coords.width);
+    if (cords.width < 0 || cords.width >= 8) {
+        printf("Wrong cords.width - %d\n", cords.width);
         return 0;
     }
 
-    return board->grid[coords.height][coords.width];
+    return board->grid[cords.height][cords.width];
 }
 
-int check_cat(Board* board, coordinates coords) {
-    char cat = get_cat(board, coords);
+int check_cat(Board* board, coordinates cords) {
+    char cat = get_cat(board, cords);
     if (cat == 'W' || cat == 'w') {
         return 1;
     }
@@ -79,73 +79,73 @@ int check_cat(Board* board, coordinates coords) {
         return 1;
     }
     else if (cat == 'e') {
-        printf("Cat height - %d, width - %d should be deleted in next move\n", coords.height, coords.width);
+        printf("Cat height - %d, width - %d should be deleted in next move\n", cords.height, cords.width);
         return 1;
     }
     else
-        printf("cell %d - coords.height, %d - coords.width doesnt contain cat\n",
-         coords.height, coords.width);
+        printf("cell %d - cords.height, %d - cords.width doesnt contain cat\n",
+         cords.height, cords.width);
     return 0;
 }
 
-int check_coordinates(coordinates coords) {
-    if (coords.height >= 8 || coords.height < 0)
+int check_coordinates(coordinates cords) {
+    if (cords.height >= 8 || cords.height < 0)
         return 1;
 
-    if (coords.width >= 8 || coords.width < 0)
+    if (cords.width >= 8 || cords.width < 0)
         return 1;
     return 0;
 }
 
-int remove_cat(Board* board, coordinates coords) {
-    char cat = get_cat(board, coords);
+int remove_cat(Board* board, coordinates cords) {
+    char cat = get_cat(board, cords);
 
-    if (!check_cat(board, coords))
+    if (!check_cat(board, cords))
         return 1;
     if (cat == 'W' || cat == 'w') {
         board->white_num--;
-        board->grid[coords.height][coords.width] = ' ';
+        board->grid[cords.height][cords.width] = ' ';
         return 0;
     }
     else if (cat == 'G' || cat == 'g') {
         board->grey_num--;
-        board->grid[coords.height][coords.width] = ' ';
+        board->grid[cords.height][cords.width] = ' ';
         return 0;
     }
     return 1;
 }
 
-int disable_cat(Board* board, coordinates coords) {
-    char cat = get_cat(board, coords);
+int disable_cat(Board* board, coordinates cords) {
+    char cat = get_cat(board, cords);
 
-    if (!check_cat(board, coords))
+    if (!check_cat(board, cords))
         return 1;
     if (cat == 'W' || cat == 'w') {
         board->white_num--;
-        board->grid[coords.height][coords.width] = 'e';
+        board->grid[cords.height][cords.width] = 'e';
         return 0;
     }
     else if (cat == 'G' || cat == 'g') {
         board->grey_num--;
-        board->grid[coords.height][coords.width] = 'e';
+        board->grid[cords.height][cords.width] = 'e';
         return 0;
     }
     return 1;
 }
 
-int can_make_king(Board* board, coordinates coords) {
-    char cat = get_cat(board, coords);
-    if (cat == 'w' && coords.height == 0 || cat == 'g' && coords.height == 7)
+int can_make_king(Board* board, coordinates cords) {
+    char cat = get_cat(board, cords);
+    if (cat == 'w' && cords.height == 0 || cat == 'g' && cords.height == 7)
         return 1;
     return 0;
 }
 
-int make_king(Board* board, coordinates coords) {
-    char cat = get_cat(board, coords);
-    if (cat == 'w' && coords.height == 0)
-        board->grid[coords.height][coords.width] = 'W';
-    else if (cat == 'g' && coords.height == 7)
-        board->grid[coords.height][coords.width] = 'G';
+int make_king(Board* board, coordinates cords) {
+    char cat = get_cat(board, cords);
+    if (cat == 'w' && cords.height == 0)
+        board->grid[cords.height][cords.width] = 'W';
+    else if (cat == 'g' && cords.height == 7)
+        board->grid[cords.height][cords.width] = 'G';
     else {
         printf("Cant make king\n");
         return 1;
@@ -153,14 +153,12 @@ int make_king(Board* board, coordinates coords) {
     return 0;
 }
 
-
-
-int add_cat(Board* board, char cat, coordinates coords) {
-    if (check_coordinates(coords)) {
+int add_cat(Board* board, char cat, coordinates cords) {
+    if (check_coordinates(cords)) {
         printf("Out of board\n");
         return 4;
     }
-    if ((coords.height + coords.width) % 2) {
+    if ((cords.height + cords.width) % 2) {
         printf("Not brown cell\n");
         return 2;
     }
@@ -172,7 +170,7 @@ int add_cat(Board* board, char cat, coordinates coords) {
         printf("Wrong cat\n");
         return 3;
     }
-    board->grid[coords.height][coords.width] = cat;
+    board->grid[cords.height][cords.width] = cat;
     return 0;
 }
 
@@ -205,7 +203,6 @@ int usual_eat(Board* board, coordinates first, coordinates end) {
     return 0;
 }
 
-
 int king_eat(Board* board, coordinates first, coordinates end) {
     ///...
 }
@@ -216,8 +213,8 @@ void finaly_eat(Board* board) {
         for (int j = 0; j < 8; j++)
             if (board->grid[i][j] == 'e') {
                 eat_counter++;
-                coordinates coords = {i, j};
-                remove_cat(board, coords);
+                coordinates cords = {i, j};
+                remove_cat(board, cords);
             }
     change_turn(board);
     if (eat_counter > 0)
@@ -231,19 +228,18 @@ int move(Board* board, coordinates first, coordinates end) {
     return 0;
 }
 
-
-int usual_can_move(Board* board, coordinates coords1, coordinates coords2, coordinates_list* res) {
-    if (check_coordinates(coords1))
+int usual_can_move(Board* board, coordinates cords1, coordinates cords2, coordinates_list* res) {
+    if (check_coordinates(cords1))
         return 1;
-    if (check_coordinates(coords2))
+    if (check_coordinates(cords2))
         return 1;
-    if (!check_cat(board, coords1))
+    if (!check_cat(board, cords1))
         return 1;
 
     coordinates_list list;
     init(&list);
 
-    char my_cat = get_cat(board, coords1);
+    char my_cat = get_cat(board, cords1);
     if (my_cat == 0 || my_cat == ' ')
         return 1;
     if (my_cat == 'g') {
@@ -252,16 +248,16 @@ int usual_can_move(Board* board, coordinates coords1, coordinates coords2, coord
     ///...
 }
 
-int king_can_move(Board* board, coordinates coords1, coordinates coords2, coordinates_list* res) {
+int king_can_move(Board* board, coordinates cords1, coordinates cords2, coordinates_list* res) {
     ///...
 }
 
-int move_cat(Board* board, coordinates coords1, coordinates coords2) {
-    char cat = get_cat(board, coords1);
-    int res = remove_cat(board, coords1);
+int move_cat(Board* board, coordinates cords1, coordinates cords2) {
+    char cat = get_cat(board, cords1);
+    int res = remove_cat(board, cords1);
     if (res)
         return res;
-    return add_cat(board, cat, coords2);
+    return add_cat(board, cat, cords2);
 }
 
 void print_board(Board board) {
@@ -280,20 +276,17 @@ void get_movable_cat(Board* board, coordinates_list* res) {
     board->has_moves = 0;
     for (int i = 0; i < 8; i++)
         for (int j = 0; j < 8; j++) {
-            coordinates coords = {i, j};
-            if (board->turn == get_cat(board, coords) ||
-                uper_case(board->turn) == get_cat(board, coords)) {
+            coordinates cords = {i, j};
+            if (board->turn == get_cat(board, cords) ||
+                upper_case(board->turn) == get_cat(board, cords)) {
 
-                if (is_able_to_move(board, coords)) {
-                    push_back(res, coords);
+                if (is_able_to_move(board, cords)) {
+                    push_back(res, cords);
                     board->has_moves = 1;
                 }
             }
         }
 }
-
-
-
 
 void turn_cicle(Board* board) {
     while (is_game_over(board)== 'n') {
