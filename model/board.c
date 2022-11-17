@@ -26,6 +26,20 @@ char upper_case(char val) {
     return val + ('A' - 'a');
 }
 
+char lower_case(char val) {
+    return val - ('A' - 'a');
+}
+
+char get_enemy(char val) {
+    val = lower_case(val);
+    if (val == 'g')
+        return 'w';
+    else if (val == 'w')
+        return 'g';
+    printf("Something wrong");
+    return '\0';
+}
+
 int get_white_num(Board board) {
     return board.white_num;
 }
@@ -174,6 +188,67 @@ int add_cat(Board* board, char cat, coordinates cords) {
     return 0;
 }
 
+int can_eat(Board* board, coordinates cords1) {
+    char cat = get_cat(board, cords1);
+
+}
+
+int is_able_to_move(Board* board, coordinates cords) {
+    char cat = get_cat(board, cords);
+    char enemy = get_enemy(cat);
+    coordinates cur;
+    int default_coef;
+    if (cat == 'w')
+        default_coef = 1;
+    else if (cat == 'g')
+        default_coef = -1;
+
+      cur.height = cords.height - 1 * default_coef;
+      cur.width = cords.width - 1;
+      if (lower_case(get_cat(board, cur)) == enemy) {
+          cur.height = cur.height - 1 * default_coef;
+          cur.width--;
+          if (get_cat(board, cur) == ' ')
+              return 1;
+      }
+      cur.height = cords.height - 1 * default_coef;
+      cur.width = cords.width + 1;
+      if (lower_case(get_cat(board, cur)) == enemy) {
+          cur.height = cur.height - 1 * default_coef;
+          cur.width++;
+          if (get_cat(board, cur) == ' ')
+              return 1;
+      }
+      cur.height = cords.height + 1 * default_coef;
+      cur.width = cords.width - 1;
+      if (lower_case(get_cat(board, cur)) == enemy) {
+          cur.height = cur.height + 1 * default_coef;
+          cur.width--;
+          if (get_cat(board, cur) == ' ')
+              return 1;
+      }
+      cur.height = cords.height + 1 * default_coef;
+      cur.width = cords.width + 1;
+      if (lower_case(get_cat(board, cur)) == enemy) {
+          cur.height = cur.height + 1 * default_coef;
+          cur.width++;
+          if (get_cat(board, cur) == ' ')
+              return 1;
+      }
+
+      cur.height = cords.height - 1 * default_coef;
+      cur.width = cords.width - 1;
+      if (get_cat(board, cur) == ' ')
+          return 2;
+
+      cur.height = cords.height - 1 * default_coef;
+      cur.width = cords.width + 1;
+      if (get_cat(board, cur) == ' ')
+          return 2;
+
+      return 0;
+}
+
 int usual_eat(Board* board, coordinates first, coordinates end) {
     if (abs(first.height - end.height) != 2) {
         printf("Cant eat");
@@ -291,6 +366,7 @@ void get_movable_cat(Board* board, coordinates_list* res) {
 void turn_cicle(Board* board) {
     while (is_game_over(board)== 'n') {
       
+    }
   ///...
 }
 
