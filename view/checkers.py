@@ -6,11 +6,11 @@ from itertools import combinations
 SIZE = 800
 ROWS = 8
 
-grey_cat = pygame.image.load(r"\images\grey.png")
-white_cat = pygame.image.load(r"\images\white.png")
+grey_cat = pygame.image.load(r"../images/grey.png")
+white_cat = pygame.image.load(r"../images/white.png")
 
-grey_king = pygame.image.load(r"\images\grey_king.png")
-white_king = pygame.image.load(r"\images\white_king.png")
+grey_king = pygame.image.load(r"../images/grey_king.png")
+white_king = pygame.image.load(r"../images/white_king.png")
 
 TAN = (255, 243, 146)
 BROWN = (121, 65, 0)
@@ -196,7 +196,7 @@ if __name__ == "__main__":
     pygame.init()
     WIN = pygame.display.set_mode((SIZE, SIZE))
     pygame.display.set_caption("Кошашки")
-    pygame.display.set_icon(pygame.image.load(".\\images\\cotologo.png"))
+    pygame.display.set_icon(pygame.image.load("../images/cotologo.png"))
 
     priorMoves = []
     main(SIZE, ROWS)

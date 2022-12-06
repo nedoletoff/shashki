@@ -14,7 +14,7 @@ typedef struct Board {
 Board initBoard();
 int get_white_num(Board board);
 int get_grey_num(Board board);
-void change_turn(Board* board);
+void change_turn_and_finally_eat(Board* board);
 char is_game_over(Board* board);
 char get_cat(Board* board, coordinates coord);
 int is_able_to_move(Board* board, coordinates cords);
