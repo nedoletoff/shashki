@@ -479,7 +479,7 @@ void get_moves(Board* board, coordinates cords, coordinates_list* list) {
     char cat = get_cat(board, cords);
     if (cat == 'W' || cat == 'G')
         get_king_moves(board, cords, list);
-    else if (cat == 'w' || cat = 'g')
+    else if (cat == 'w' || cat == 'g')
         get_usual_moves(board, cords, list);
     else
         printf("SOMETHING WRONG IN MAIN GET MOVES\n");

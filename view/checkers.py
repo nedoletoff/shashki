@@ -1,7 +1,5 @@
 import pygame
-import random
 import sys
-from itertools import combinations
 
 SIZE = 800
 ROWS = 8
