@@ -23,11 +23,15 @@ Board initBoard() {
 }
 
 char upper_case(char val) {
-    return val + ('A' - 'a');
+    if (val < 'A' && val >= 'a')
+        return val + ('A' - 'a');
+    else val;
 }
 
 char lower_case(char val) {
-    return val - ('A' - 'a');
+    if (val > 'a' && val <= 'Z')
+        return val - ('A' - 'a');
+    return val;
 }
 
 char get_enemy(char val) {
@@ -36,7 +40,7 @@ char get_enemy(char val) {
         return 'w';
     else if (val == 'w')
         return 'g';
-    printf("Something wrong");
+    printf("Wrong in enemy not g or w, %c - enemy(%d)\n", val, val);
     return '\0';
 }
 
@@ -73,11 +77,13 @@ void change_turn(Board* board) {
 
 char get_cat(Board* board, coordinates cords) {
     if (cords.height < 0 || cords.height >= 8) {
-        printf("Wrong cords.height - %d\n", cords.height);
+        //printf("Wrong cords.height - %d\n", cords.height);
+        //printf("Wrong cords.width - %d\n", cords.width);
         return 0;
     }
     if (cords.width < 0 || cords.width >= 8) {
-        printf("Wrong cords.width - %d\n", cords.width);
+        //printf("Wrong cords.width - %d\n", cords.width);
+        //printf("Wrong cords.height - %d\n", cords.height);
         return 0;
     }
 
@@ -93,7 +99,8 @@ int check_cat(Board* board, coordinates cords) {
         return 1;
     }
     else if (cat == 'e') {
-        printf("Cat height - %d, width - %d should be deleted in next move\n", cords.height, cords.width);
+        printf("Cat height - %d, width - %d should be deleted in next move\n",
+         cords.height, cords.width);
         return 1;
     }
     else
@@ -323,13 +330,19 @@ int is_able_to_move(Board* board, coordinates cords) {
 
     cur.height = cords.height - 1 * default_coef;
     cur.width = cords.width - 1;
-    if (get_cat(board, cur) == ' ')
+    if (get_cat(board, cur) == ' ') {
+        //printf("%d - cur.height, %d - cur.width, %c - cat\n",
+        //cur.height, cur.width, get_cat(board, cur));
         return 2;
+    }
 
     cur.height = cords.height - 1 * default_coef;
     cur.width = cords.width + 1;
-    if (get_cat(board, cur) == ' ')
+    if (get_cat(board, cur) == ' ') {
+        //printf("%d - cur.height, %d - cur.width, %c - cat\n",
+        //cur.height, cur.width, get_cat(board, cur));
         return 2;
+    }
 
     return 0;
 }
@@ -595,11 +608,12 @@ int move_cat(Board* board, coordinates cords1, coordinates cords2) {
     return add_cat(board, cat, cords2);
 }
 
-void print_board(Board board) {
-    printf("%d - whites, %d - grays\n", board.white_num, board.grey_num);
+void print_board(Board* board) {
+    printf("%d - whites, %d - grays\n %c - turn\n", board->white_num, board->grey_num, board->turn);
+
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
-            printf("%c", board.grid[i][j]);
+            printf("%c", board->grid[i][j]);
         }
         printf("\n");
     }
@@ -616,6 +630,7 @@ void get_movable_cat(Board* board, coordinates_list* moves, coordinates_list* ea
             coordinates cords = {i, j};
             if (board->turn == get_cat(board, cords) ||
                 upper_case(board->turn) == get_cat(board, cords)) {
+                //printf("%d - height, %d - width, %d - is able to move\n", i, j, is_able_to_move(board, cords));
 
                 if (is_able_to_move(board, cords) == 1) {
                     push_back(eats, cords);
@@ -628,26 +643,28 @@ void get_movable_cat(Board* board, coordinates_list* moves, coordinates_list* ea
             }
         }
     if (eats->size > 0) {
+        printf("eats not zero\n");
         destroy(moves);
         init(moves);
     }
+    printf("eats - %d, moves - %d\n", eats->size, moves->size);
 
 }
 
 int main() {
     Board board = initBoard();
     printf("Board init\n");
-    print_board(board);
+    print_board(&board);
     printf("Board print\n");
     coordinates coord = {1, 3};
     coordinates coord1 = {4, 4};
     coordinates coord2 = {0, 0};
     move_cat(&board, coord, coord1);
     printf("Board move_cat\n");
-    print_board(board);
+    print_board(&board);
     printf("Board print\n");
     make_king(&board, coord2);
-    print_board(board);
+    print_board(&board);
     printf("Board print\n");
 
     return 0;

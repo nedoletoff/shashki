@@ -10,13 +10,7 @@ typedef struct Board {
     int has_moves;
 } Board;
 
-
-Board initBoard();
-int get_white_num(Board board);
-int get_grey_num(Board board);
 void change_turn(Board* board);
-void change_turn_and_finally_eat(Board* board);
-char is_game_over(Board* board);
 char get_cat(Board* board, coordinates coord);
 int is_able_to_move(Board* board, coordinates cords);
 int check_cat(Board* board, coordinates cords);
@@ -24,8 +18,15 @@ int disable_cat(Board* board, coordinates cords);
 int remove_cat(Board* board, coordinates cords);
 int make_king(Board* board, coordinates cords);
 int add_cat(Board* board, char cat, coordinates cords);
-void get_moves(Board* board, coordinates cords, coordinates_list* list);
 int eat(Board* board, coordinates first, coordinates end);
 int move(Board* board, coordinates first, coordinates end);
+
+void get_movable_cat(Board* board, coordinates_list* moves, coordinates_list* eats);
+Board initBoard();
+void get_moves(Board* board, coordinates cords, coordinates_list* list);
+char is_game_over(Board* board);
+int get_white_num(Board board);
+int get_grey_num(Board board);
+void change_turn_and_finally_eat(Board* board);
 int move_cat(Board* board, coordinates cords1, coordinates cords2);
-void print_board(Board board);
+void print_board(Board* board);

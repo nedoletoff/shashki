@@ -9,11 +9,20 @@ void init(coordinates_list* l)		//O(1)
 	l->size = 0;
 }
 
+coordinates_list initCoordinatesList()
+{
+    coordinates_list res;
+    res.head = NULL;
+    res.tail = NULL;
+    res.size = 0;
+    return res;
+}
+
 void destroy(coordinates_list* l)		//O(n)
 {
 	node_t* cur = l->head;
 	node_t* perv = NULL;
-	while (cur != NULL)
+	while (cur != NULL && l->size != 0)
 	{
 		perv = cur;
 		cur = cur->next;
@@ -45,12 +54,13 @@ void push_back(coordinates_list* l, coordinates val)	//O(1)
 void print(coordinates_list* l)		//O(n)
 {
 	node_t*cur = l->head;
-	while (cur != NULL)
+	while (cur != NULL && l->size != 0)
 	{
-		printf("height - %d, width - %d ", cur->value.height, cur->value.width);
+		printf("height - %d, width - %d,\t", cur->value.height, cur->value.width);
 		cur = cur->next;
 	}
-	printf("\n");
+	printf("\nsize - %d\n", l->size);
+
 }
 
 int set(coordinates_list* l, int i, coordinates val)	//O(n)
@@ -128,6 +138,8 @@ void push_front(coordinates_list* l, coordinates val)	//O(1)
 
 void pop_back(coordinates_list* l, coordinates* res)
 {
+  if (l->size == 0)
+    return;
   node_t* cur = l->tail;
   res->height = cur->value.height;
   res->width = cur->value.width;
