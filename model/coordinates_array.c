@@ -22,8 +22,8 @@ void push_back(coordinates_array* arr, coordinates cords) {
         printf("Array size ended\n");
         return;
     }
-    arr->heights[arr->size++] = cords.height;
-    arr->widths[arr->size] = cords.width;
+    arr->heights[arr->size] = cords.height;
+    arr->widths[arr->size++] = cords.width;
 }
 void print(coordinates_array* arr) {
     for (int i = 0; i < arr->size; i++)

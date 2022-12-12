@@ -1,3 +1,5 @@
+import time
+
 import pygame
 import model.board
 import sys
@@ -6,6 +8,18 @@ import subprocess
 
 def is_in_rect(rect: list, mouse: tuple) -> bool:
     return rect[0] <= mouse[0] <= rect[0] + rect[2] and rect[1] <= mouse[1] <= rect[1] + rect[3]
+
+
+def what_cell(mouse: tuple, size: int) -> model.board.Cords:
+    res = model.board.Cords()
+    gap = int(size / 8)
+    res.width = -1
+    res.height = -1
+    if 0 < mouse[0] <= size and 0 < mouse[1] <= size:
+        res.width = int(mouse[0] / gap)
+        res.height = int(mouse[1] / gap)
+    print(res.to_text())
+    return res
 
 
 class Game:
@@ -18,8 +32,13 @@ class Game:
 
         pygame.init()
         pygame.display.set_caption("Кошашки")
+        # load images
         pygame.display.set_icon(pygame.image.load("images/cotologo.png"))
         self.field = pygame.image.load("images/field.png")
+        self.grey_cat = pygame.image.load("images/grey.png")
+        self.white_cat = pygame.image.load("images/white.png")
+        self.grey_king = pygame.image.load("images/grey_king.png")
+        self.white_king = pygame.image.load("images/white_king.png")
 
         # white color
         self.color_white = (255, 255, 255)
@@ -120,11 +139,72 @@ class Game:
             # updates the frames of the game
             pygame.display.update()
 
+    def draw_game(self):
+        state = True
+        cur = None
+        board = model.board.Board()
+        movable_cats = board.get_movable()
+        print(movable_cats)
+        for i in movable_cats:
+            print(i.to_text(), end='\t')
+        moves = list()
+        field_list = board.get_grid()
+
+        def draw_cats(field_list: list):
+            for i, ipos in enumerate(range(0, self.window_size, self.window_size // 8)):
+                for j, jpos in enumerate(range(0, self.window_size, self.window_size // 8)):
+                    if field_list[j][i] == 'w':
+                        self.screen.blit(self.white_cat, (ipos, jpos))
+                    if field_list[j][i] == 'W':
+                        self.screen.blit(self.white_king, (ipos, jpos))
+                    if field_list[j][i] == 'g':
+                        self.screen.blit(self.grey_cat, (ipos, jpos))
+                    if field_list[j][i] == 'G':
+                        self.screen.blit(self.grey_king, (ipos, jpos))
+
+        def draw_highlighted(clicked: model.board.Cords, mode: bool):
+            gap = self.window_size // 8
+            if mode or clicked is None:  # highlight movable cats
+                for cat in movable_cats:
+                    pygame.draw.rect(self.screen, self.color_blue,
+                                     (cat.height * gap, cat.width * gap, gap, gap))
+            else:
+                pygame.draw.rect(self.screen, self.color_orange,
+                                 clicked.height * gap, clicked.width * gap, gap, gap)
+                for cell in moves:
+                    pygame.draw.rect(self.screen, self.color_blue,
+                                     (cell.height * gap, cell.width * gap, gap, gap))
+
+        while True:
+            time.sleep(0.05)
+            mouse = pygame.mouse.get_pos()
+            self.draw_buttons()
+            self.screen.blit(self.field, (0, 0))
+            for ev in pygame.event.get():
+                if ev.type == pygame.QUIT:
+                    pygame.quit()
+                    return
+                if ev.type == pygame.MOUSEBUTTONDOWN:
+                    cur = what_cell(mouse, self.window_size)
+                    if cur in movable_cats:
+                        state = False
+                    else:
+                        state = True
+                        cur = None
+
+                    # if the mouse is clicked on the
+
+                # add ev to update field_list
+            draw_highlighted(cur, state)
+            draw_cats(field_list)
+            pygame.display.update()
+
 
 def main():
     game = Game()
     mode = game.start_menu()
-    print(mode)
+    if mode == 'bot_game':
+        mode = game.draw_game()
 
 
 if __name__ == '__main__':

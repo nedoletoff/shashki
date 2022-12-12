@@ -619,11 +619,10 @@ void print_board(Board* board) {
     }
 }
 
-void get_movable_cat(Board* board, coordinates_array* moves, coordinates_array* eats) {
-    destroy(eats);
-    init(eats);
+void get_movable_cat(Board* board, coordinates_array* moves) {
     destroy(moves);
     init(moves);
+    int check = 1;
     board->has_moves = 0;
     for (int i = 0; i < 8; i++)
         for (int j = 0; j < 8; j++) {
@@ -633,22 +632,19 @@ void get_movable_cat(Board* board, coordinates_array* moves, coordinates_array* 
                 //printf("%d - height, %d - width, %d - is able to move\n", i, j, is_able_to_move(board, cords));
 
                 if (is_able_to_move(board, cords) == 1) {
-                    push_back(eats, cords);
+                    if (check) {
+                        check = 0;
+                        destroy(moves);
+                    }
+                    push_back(moves, cords);
                     board->has_moves = 1;
                 }
-                if (is_able_to_move(board, cords) == 2) {
+                if (is_able_to_move(board, cords) == 2 && check) {
                     push_back(moves, cords);
                     board->has_moves = 1;
                 }
             }
         }
-    if (eats->size > 0) {
-        printf("eats not zero\n");
-        destroy(moves);
-        init(moves);
-    }
-    printf("eats - %d, moves - %d\n", eats->size, moves->size);
-
 }
 
 int main() {
@@ -656,16 +652,9 @@ int main() {
     printf("Board init\n");
     print_board(&board);
     printf("Board print\n");
-    coordinates coord = {1, 3};
-    coordinates coord1 = {4, 4};
-    coordinates coord2 = {0, 0};
-    move_cat(&board, coord, coord1);
-    printf("Board move_cat\n");
-    print_board(&board);
-    printf("Board print\n");
-    make_king(&board, coord2);
-    print_board(&board);
-    printf("Board print\n");
+    coordinates_array moves;
+    get_movable_cat(&board, &moves);
+    printf("moves.size - %d\n", moves.size);
 
     return 0;
 }

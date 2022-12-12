@@ -26,7 +26,7 @@ class CoordinatesArraySt(ctypes.Structure):
 
 
 # board.c functions
-libc.initBoard.restype = ctypes.POINTER(BoardSt)
+libc.initBoard.restype = BoardSt
 libc.is_game_over.restype = ctypes.c_char
 libc.get_white_num.restype = ctypes.c_int
 libc.get_grey_num.restype = ctypes.c_int
@@ -34,18 +34,15 @@ libc.move_cat.restype = ctypes.c_int
 
 # coordinates_list functions
 #libc.initCoordinatesArray.restype = ctypes.POINTER(CoordinatesArraySt)
-
-
-# libc.initCoordinatesList.restype = CoordinatesListSt
+libc.initCoordinatesArray.restype = CoordinatesArraySt
 
 
 def struct_list_to_python_list(cords_list: CoordinatesArraySt) -> list:
     res_list = list()
-    print(cords_list.size)
     while cords_list.size > 0:
-        libc.print(cords_list)
         cur = CoordinatesSt()
-        libc.pop_back(cords_list, cur)
+        cur_p = ctypes.pointer(cur)
+        libc.pop_back(cords_list, cur_p)
         res_list.append(Cords(cur))
     return res_list
 
@@ -58,24 +55,28 @@ class Cords:
             self.height = coordinates_st.height
             self.width = coordinates_st.width
 
+    def to_text(self) -> str:
+        res = "height - " + str(self.height) + ": width - " + str(self.width)
+        return res
+
+    def to_CoordinatesSt(self) -> CoordinatesSt:
+        cur = CoordinatesSt()
+        cur.height = self.height
+        cur.width = self.width
+        return cur
+
 
 class Board:
     def __init__(self):
         self.board = libc.initBoard()
-
-        #libc.print(libc.initCoordinatesArray())
-        #self.moves = CoordinatesArraySt()
-        #self.eats = CoordinatesArraySt()
-        print("Damn")
-        self.moves = libc.initCoordinatesArray()
-        print("Damn")
-        self.eats = libc.initCoordinatesArray()
+        self.movable = list()
+        self.libc_arr = libc.initCoordinatesArray()
 
     def get_grid(self) -> list:
         grid = [[0 for i in range(8)] for j in range(8)]
         for i in range(8):
             for j in range(8):
-                grid[i][j] = self.board.contents.grid[i][j].decode("utf-8")
+                grid[i][j] = self.board.grid[i][j].decode("utf-8")
         return grid
 
     def is_game_ended(self) -> str:
@@ -83,21 +84,18 @@ class Board:
         return r.decode("utf-8")
 
     def get_movable(self) -> list:
-        # self.moves = CoordinatesListSt()
-        libc.destroy(self.moves)
-        libc.init(self.moves)
-        #libc.push_back(self.moves, CoordinatesSt(13, 13))
-        # self.eats = CoordinatesListSt()
-        libc.destroy(self.eats)
-        libc.init(self.eats)
-        libc.get_movable_cat(self.board, self.moves, self.eats)
+        libc.destroy(self.libc_arr)
+        libc.get_movable_cat(self.board, self.libc_arr)
+        self.movable = struct_list_to_python_list(self.libc_arr)
+        return self.movable
 
-        print(self.moves)
-        return struct_list_to_python_list(self.moves)
+    def get_moves(self, cords: Cords) -> list:
+        res = list()
+        if cords in self.movable:
+            libc.get_moves(self.board, cords.to_CoordinatesSt(), self.libc_arr)
+            res = struct_list_to_python_list(self.libc_arr)
+        return res
 
-
-print("Hello world")
-b = Board()
-print(b.get_grid())
-print(b.get_movable())
-print("Hello world")
+if __name__ == "__main__":
+    b = Board()
+    print(b.get_movable())
