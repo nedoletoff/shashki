@@ -21,8 +21,8 @@ int add_cat(Board* board, char cat, coordinates cords);
 int eat(Board* board, coordinates first, coordinates end);
 int move(Board* board, coordinates first, coordinates end);
 
-void get_movable_cat(Board* board, coordinates_list* moves, coordinates_list* eats);
 Board initBoard();
+void get_movable_cat(Board* board, coordinates_list* moves, coordinates_list* eats);
 void get_moves(Board* board, coordinates cords, coordinates_list* list);
 char is_game_over(Board* board);
 int get_white_num(Board board);

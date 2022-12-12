@@ -13,21 +13,15 @@ class BoardSt(ctypes.Structure):
                 ('has_moves', ctypes.c_int)]
 
 
-# coordinates_list.c structure
+# coordinates_array.c structure
 class CoordinatesSt(ctypes.Structure):
     _fields_ = [('height', ctypes.c_int),
                 ('width', ctypes.c_int)]
 
 
-class NodeTSt(ctypes.Structure):
-    _fields_ = [('value', CoordinatesSt),
-                ('prev', ctypes.c_void_p),
-                ('next', ctypes.c_void_p)]
-
-
-class CoordinatesListSt(ctypes.Structure):
-    _fields_ = [('head', ctypes.POINTER(NodeTSt)),
-                ('tail', ctypes.POINTER(NodeTSt)),
+class CoordinatesArraySt(ctypes.Structure):
+    _fields_ = [('heights', ctypes.c_int * 16),
+                ('widths', ctypes.c_int * 16),
                 ('size', ctypes.c_int)]
 
 
@@ -39,11 +33,13 @@ libc.get_grey_num.restype = ctypes.c_int
 libc.move_cat.restype = ctypes.c_int
 
 # coordinates_list functions
-libc.get.restype = ctypes.c_int
-libc.initCoordinatesList.restype = ctypes.POINTER(CoordinatesListSt)
+#libc.initCoordinatesArray.restype = ctypes.POINTER(CoordinatesArraySt)
 
 
-def struct_list_to_python_list(cords_list: CoordinatesListSt) -> list:
+# libc.initCoordinatesList.restype = CoordinatesListSt
+
+
+def struct_list_to_python_list(cords_list: CoordinatesArraySt) -> list:
     res_list = list()
     print(cords_list.size)
     while cords_list.size > 0:
@@ -66,9 +62,14 @@ class Cords:
 class Board:
     def __init__(self):
         self.board = libc.initBoard()
-        print(libc.initCoordinatesList())
-        self.moves = libc.initCoordinatesList()
-        self.eats = libc.initCoordinatesList()
+
+        #libc.print(libc.initCoordinatesArray())
+        #self.moves = CoordinatesArraySt()
+        #self.eats = CoordinatesArraySt()
+        print("Damn")
+        self.moves = libc.initCoordinatesArray()
+        print("Damn")
+        self.eats = libc.initCoordinatesArray()
 
     def get_grid(self) -> list:
         grid = [[0 for i in range(8)] for j in range(8)]
@@ -82,10 +83,11 @@ class Board:
         return r.decode("utf-8")
 
     def get_movable(self) -> list:
-        self.moves = CoordinatesListSt()
+        # self.moves = CoordinatesListSt()
         libc.destroy(self.moves)
         libc.init(self.moves)
-        self.eats = CoordinatesListSt()
+        #libc.push_back(self.moves, CoordinatesSt(13, 13))
+        # self.eats = CoordinatesListSt()
         libc.destroy(self.eats)
         libc.init(self.eats)
         libc.get_movable_cat(self.board, self.moves, self.eats)
@@ -94,7 +96,8 @@ class Board:
         return struct_list_to_python_list(self.moves)
 
 
+print("Hello world")
 b = Board()
-print(b.is_game_ended())
 print(b.get_grid())
 print(b.get_movable())
+print("Hello world")

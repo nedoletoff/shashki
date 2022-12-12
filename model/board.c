@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "board.h"
-#include "coordinates_list.h"
+#include "coordinates_array.h"
 
 
 Board initBoard() {
@@ -347,7 +347,7 @@ int is_able_to_move(Board* board, coordinates cords) {
     return 0;
 }
 
-void get_king_moves(Board* board, coordinates cords, coordinates_list* list) {
+void get_king_moves(Board* board, coordinates cords, coordinates_array* list) {
     destroy(list);
     init(list);
 
@@ -427,7 +427,7 @@ void get_king_moves(Board* board, coordinates cords, coordinates_list* list) {
     }
 }
 
-void get_usual_moves(Board* board, coordinates cords, coordinates_list* list) {
+void get_usual_moves(Board* board, coordinates cords, coordinates_array* list) {
     destroy(list);
     init(list);
 
@@ -488,7 +488,7 @@ void get_usual_moves(Board* board, coordinates cords, coordinates_list* list) {
     }
 }
 
-void get_moves(Board* board, coordinates cords, coordinates_list* list) {
+void get_moves(Board* board, coordinates cords, coordinates_array* list) {
     char cat = get_cat(board, cords);
     if (cat == 'W' || cat == 'G')
         get_king_moves(board, cords, list);
@@ -619,7 +619,7 @@ void print_board(Board* board) {
     }
 }
 
-void get_movable_cat(Board* board, coordinates_list* moves, coordinates_list* eats) {
+void get_movable_cat(Board* board, coordinates_array* moves, coordinates_array* eats) {
     destroy(eats);
     init(eats);
     destroy(moves);
