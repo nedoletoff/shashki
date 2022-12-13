@@ -619,7 +619,7 @@ void print_board(Board* board) {
     }
 }
 
-void get_movable_cat(Board* board, coordinates_array* moves) {
+coordinates_array get_movable_cat(Board* board, coordinates_array* moves) {
     destroy(moves);
     init(moves);
     int check = 1;
@@ -629,7 +629,7 @@ void get_movable_cat(Board* board, coordinates_array* moves) {
             coordinates cords = {i, j};
             if (board->turn == get_cat(board, cords) ||
                 upper_case(board->turn) == get_cat(board, cords)) {
-                //printf("%d - height, %d - width, %d - is able to move\n", i, j, is_able_to_move(board, cords));
+                printf("%d - height, %d - width, %d - is able to move\n", i, j, is_able_to_move(board, cords));
 
                 if (is_able_to_move(board, cords) == 1) {
                     if (check) {
@@ -645,6 +645,8 @@ void get_movable_cat(Board* board, coordinates_array* moves) {
                 }
             }
         }
+    coordinates_array res = *moves;
+    return res;
 }
 
 int main() {
@@ -653,8 +655,9 @@ int main() {
     print_board(&board);
     printf("Board print\n");
     coordinates_array moves;
-    get_movable_cat(&board, &moves);
+    coordinates_array mov = get_movable_cat(&board, &moves);
     printf("moves.size - %d\n", moves.size);
+    printf("mov.size - %d\n", mov.size);
 
     return 0;
 }

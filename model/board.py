@@ -33,12 +33,14 @@ libc.get_grey_num.restype = ctypes.c_int
 libc.move_cat.restype = ctypes.c_int
 
 # coordinates_list functions
-#libc.initCoordinatesArray.restype = ctypes.POINTER(CoordinatesArraySt)
+# libc.initCoordinatesArray.restype = ctypes.POINTER(CoordinatesArraySt)
 libc.initCoordinatesArray.restype = CoordinatesArraySt
+libc.get_movable_cat.restype = CoordinatesArraySt
 
 
 def struct_list_to_python_list(cords_list: CoordinatesArraySt) -> list:
     res_list = list()
+    print(cords_list.size)
     while cords_list.size > 0:
         cur = CoordinatesSt()
         cur_p = ctypes.pointer(cur)
@@ -85,8 +87,7 @@ class Board:
 
     def get_movable(self) -> list:
         libc.destroy(self.libc_arr)
-        libc.get_movable_cat(self.board, self.libc_arr)
-        self.movable = struct_list_to_python_list(self.libc_arr)
+        self.movable = struct_list_to_python_list(libc.get_movable_cat(self.board, self.libc_arr))
         return self.movable
 
     def get_moves(self, cords: Cords) -> list:
@@ -95,6 +96,7 @@ class Board:
             libc.get_moves(self.board, cords.to_CoordinatesSt(), self.libc_arr)
             res = struct_list_to_python_list(self.libc_arr)
         return res
+
 
 if __name__ == "__main__":
     b = Board()

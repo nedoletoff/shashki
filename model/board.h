@@ -22,7 +22,7 @@ int eat(Board* board, coordinates first, coordinates end);
 int move(Board* board, coordinates first, coordinates end);
 
 Board initBoard();
-void get_movable_cat(Board* board, coordinates_array* moves);
+coordinates_array get_movable_cat(Board* board, coordinates_array* moves);
 void get_moves(Board* board, coordinates cords, coordinates_array* list);
 char is_game_over(Board* board);
 int get_white_num(Board board);
