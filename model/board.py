@@ -14,17 +14,33 @@ class BoardSt(ctypes.Structure):
 
 
 # coordinates_array.c structure
+
 class CoordinatesSt(ctypes.Structure):
     _fields_ = [('height', ctypes.c_int),
                 ('width', ctypes.c_int)]
 
 
-class CoordinatesArraySt(ctypes.Structure):
+class NodeSt(ctypes.Structure):
+    pass
+
+
+NodeSt._fields_ = [('coordinates', CoordinatesSt),
+                   ('prev', ctypes.POINTER(NodeSt)),
+                   ('next', ctypes.POINTER(NodeSt))]
+
+
+class CoordinatesListSt(ctypes.Structure):
+    _fields_ = [('head', ctypes.POINTER(NodeSt)),
+                ('tail', ctypes.POINTER(NodeSt)),
+                ('size', ctypes.c_int)]
+
+
+'''class CoordinatesArraySt(ctypes.Structure):
     _fields_ = [('heights', ctypes.c_int * 16),
                 ('widths', ctypes.c_int * 16),
                 ('size', ctypes.c_int)]
 
-
+'''
 # board.c functions
 libc.initBoard.restype = BoardSt
 libc.is_game_over.restype = ctypes.c_char
