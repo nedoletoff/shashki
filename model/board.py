@@ -54,9 +54,9 @@ libc.initCoordinatesList.restype = CoordinatesListSt
 
 
 class Cords:
-    def __init__(self, coordinates_st=None):
-        self.height = -2
-        self.width = -2
+    def __init__(self, coordinates_st=None, height=-2, width=-2):
+        self.height = height
+        self.width = width
         if coordinates_st is not None:
             self.height = coordinates_st.height
             self.width = coordinates_st.width
@@ -70,6 +70,12 @@ class Cords:
         cur.height = self.height
         cur.width = self.width
         return cur
+
+    def in_list(self, list_s) -> bool:
+        for e in list_s:
+            if e.height == self.height and e.width == self.width:
+                return True
+        return False
 
 
 def c_list_p_to_python_list(list_p: ctypes.pointer) -> list:
@@ -108,10 +114,16 @@ class Board:
 
     def get_moves(self, cords: Cords) -> list:
         res = list()
-        if cords in self.movable_list:
+        if cords.in_list(self.movable_list):
             libc.get_moves(self.board_p, cords.to_CoordinatesSt(), self.list_p1)
             res = c_list_p_to_python_list(self.list_p1)
         return res
+
+    def move_cat(self, c1: Cords, c2: Cords) -> bool:
+        if c2.in_list(self.get_moves(c1)):
+            libc.move_cat(self.board_p, c1.to_CoordinatesSt(), c2.to_CoordinatesSt())
+            return True
+        return False
 
 
 if __name__ == "__main__":
@@ -119,8 +131,16 @@ if __name__ == "__main__":
     print(b.get_grid())
     for e in b.update_get_movable():
         print(e.to_text())
-    for e in b.get_moves(b.movable_list[1]):
+    for e in b.get_moves(b.movable_list[0]):
         print(e.to_text())
+    c1 = Cords()
+    c1.height = 5
+    c1.width = 7
+    c2 = Cords()
+    c2.height = 4
+    c2.width = 6
+    print(b.move_cat(c1, c2))
+    libc.print_board(b.board_p)
     print(b.is_game_ended())
     print(b.board_p.contents.turn)
     print(b.board_p.contents.no_eat_counter)
