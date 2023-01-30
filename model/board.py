@@ -1,6 +1,6 @@
 import ctypes
 
-libc = ctypes.CDLL("model/func.dll")
+libc = ctypes.CDLL("model/board.dll")
 
 
 # board.c structure
@@ -13,7 +13,7 @@ class BoardSt(ctypes.Structure):
                 ('has_moves', ctypes.c_int)]
 
 
-# coordinates_array.c structure
+# coordinates_list.c structure
 
 class CoordinatesSt(ctypes.Structure):
     _fields_ = [('height', ctypes.c_int),
@@ -35,7 +35,7 @@ class CoordinatesListSt(ctypes.Structure):
                 ('size', ctypes.c_int)]
 
 
-'''class CoordinatesArraySt(ctypes.Structure):
+'''class CoordinatesListSt(ctypes.Structure):
     _fields_ = [('heights', ctypes.c_int * 16),
                 ('widths', ctypes.c_int * 16),
                 ('size', ctypes.c_int)]
@@ -49,20 +49,8 @@ libc.get_grey_num.restype = ctypes.c_int
 libc.move_cat.restype = ctypes.c_int
 
 # coordinates_list functions
-# libc.initCoordinatesArray.restype = ctypes.POINTER(CoordinatesArraySt)
-libc.initCoordinatesArray.restype = CoordinatesArraySt
-libc.get_movable_cat.restype = CoordinatesArraySt
-
-
-def struct_list_to_python_list(cords_list: CoordinatesArraySt) -> list:
-    res_list = list()
-    print(cords_list.size)
-    while cords_list.size > 0:
-        cur = CoordinatesSt()
-        cur_p = ctypes.pointer(cur)
-        libc.pop_back(cords_list, cur_p)
-        res_list.append(Cords(cur))
-    return res_list
+# libc.initCoordinatesArray.restype = ctypes.POINTER(CoordinatesListSt)
+libc.initCoordinatesList.restype = CoordinatesListSt
 
 
 class Cords:
@@ -84,36 +72,55 @@ class Cords:
         return cur
 
 
+def c_list_p_to_python_list(list_p: ctypes.pointer) -> list:
+    res = list()
+    temp = ctypes.pointer(CoordinatesSt())
+    while list_p.contents.size > 0:
+        libc.pop_back(list_p, temp)
+        res.append(Cords(temp.contents))
+    return res
+
+
 class Board:
     def __init__(self):
-        self.board = libc.initBoard()
-        self.movable = list()
-        self.libc_arr = libc.initCoordinatesArray()
+        self.board_p = ctypes.pointer(BoardSt())
+        libc.initB(self.board_p)
+        self.movable_list = list()
+        self.list_p1 = ctypes.pointer(CoordinatesListSt())
+        self.list_p2 = ctypes.pointer(CoordinatesListSt())
 
     def get_grid(self) -> list:
         grid = [[0 for i in range(8)] for j in range(8)]
         for i in range(8):
             for j in range(8):
-                grid[i][j] = self.board.grid[i][j].decode("utf-8")
+                grid[i][j] = self.board_p.contents.grid[i][j].decode("utf-8")
         return grid
 
     def is_game_ended(self) -> str:
-        r = libc.is_game_over(self.board)
+        r = libc.is_game_over(self.board_p)
         return r.decode("utf-8")
 
-    def get_movable(self) -> list:
-        libc.destroy(self.libc_arr)
-        self.movable = struct_list_to_python_list(libc.get_movable_cat(self.board, self.libc_arr))
-        return self.movable
+    def update_get_movable(self) -> list:
+        libc.get_movable_cat(self.board_p, self.list_p1, self.list_p2)
+        self.movable_list = c_list_p_to_python_list(self.list_p1)
+        self.movable_list += c_list_p_to_python_list(self.list_p2)
+        return self.movable_list
 
     def get_moves(self, cords: Cords) -> list:
         res = list()
-        if cords in self.movable:
-            libc.get_moves(self.board, cords.to_CoordinatesSt(), self.libc_arr)
-            res = struct_list_to_python_list(self.libc_arr)
+        if cords in self.movable_list:
+            libc.get_moves(self.board_p, cords.to_CoordinatesSt(), self.list_p1)
+            res = c_list_p_to_python_list(self.list_p1)
         return res
 
 
 if __name__ == "__main__":
     b = Board()
-    print(b.get_movable())
+    print(b.get_grid())
+    for e in b.update_get_movable():
+        print(e.to_text())
+    for e in b.get_moves(b.movable_list[1]):
+        print(e.to_text())
+    print(b.is_game_ended())
+    print(b.board_p.contents.turn)
+    print(b.board_p.contents.no_eat_counter)

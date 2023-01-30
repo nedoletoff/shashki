@@ -20,7 +20,8 @@ typedef struct coordinates_list
 } coordinates_list;
 
 coordinates_list initCoordinatesList();
-void init(coordinates_list*);
+void initCL(coordinates_list*);
+
 void destroy(coordinates_list*);
 void push_back(coordinates_list*, coordinates);
 void print(coordinates_list*);

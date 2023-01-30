@@ -1,5 +1,6 @@
 #pragma once
-#include "coordinates_array.h"
+#include "coordinates_list.h"
+
 
 typedef struct Board {
     char grid[8][8];
@@ -22,8 +23,10 @@ int eat(Board* board, coordinates first, coordinates end);
 int move(Board* board, coordinates first, coordinates end);
 
 Board initBoard();
-coordinates_array get_movable_cat(Board* board, coordinates_array* moves);
-void get_moves(Board* board, coordinates cords, coordinates_array* list);
+void initB(Board*);
+
+void get_movable_cat(Board* board, coordinates_list* moves, coordinates_list* eats);
+void get_moves(Board* board, coordinates cords, coordinates_list* list);
 char is_game_over(Board* board);
 int get_white_num(Board board);
 int get_grey_num(Board board);

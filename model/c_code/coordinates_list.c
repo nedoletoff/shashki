@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include "coordinates_list.h"
 
-void init(coordinates_list* l)		//O(1)
+void initCL(coordinates_list* l)		//O(1)
 {
 	l->head = NULL;
 	l->tail = NULL;
@@ -20,13 +20,10 @@ coordinates_list initCoordinatesList()
 
 void destroy(coordinates_list* l)		//O(n)
 {
-	node_t* cur = l->head;
-	node_t* perv = NULL;
-	while (cur != NULL && l->size != 0)
+	coordinates res;
+	while (l->size > 0)
 	{
-		perv = cur;
-		cur = cur->next;
-		free(perv);
+        pop_back(l, &res);
 	}
 }
 
@@ -54,7 +51,7 @@ void push_back(coordinates_list* l, coordinates val)	//O(1)
 void print(coordinates_list* l)		//O(n)
 {
 	node_t*cur = l->head;
-	while (cur != NULL && l->size != 0)
+	while (cur != NULL)
 	{
 		printf("height - %d, width - %d,\t", cur->value.height, cur->value.width);
 		cur = cur->next;
@@ -145,8 +142,12 @@ void pop_back(coordinates_list* l, coordinates* res)
   res->width = cur->value.width;
 
   l->tail = cur->prev;
-  l->tail->next = NULL;
+  if (l->tail != NULL)
+    l->tail->next = NULL;
+  else
+    l->head = NULL;
   free(cur);
+  --l->size;
 }
 
 
