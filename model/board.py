@@ -1,6 +1,9 @@
 import ctypes
+import datetime
+import os
 
 libc = ctypes.CDLL("model/board.dll")
+path = "saves/"
 
 
 # board.c structure
@@ -36,12 +39,6 @@ class CoordinatesListSt(ctypes.Structure):
                 ('size', ctypes.c_int)]
 
 
-'''class CoordinatesListSt(ctypes.Structure):
-    _fields_ = [('heights', ctypes.c_int * 16),
-                ('widths', ctypes.c_int * 16),
-                ('size', ctypes.c_int)]
-
-'''
 # board.c functions
 libc.initBoard.restype = BoardSt
 libc.is_game_over.restype = ctypes.c_char
@@ -64,6 +61,12 @@ class Cords:
 
     def to_text(self) -> str:
         res = "height - " + str(self.height) + ": width - " + str(self.width)
+        return res
+
+    def to_symbolic_literal(self) -> str:
+        literals = ('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H')
+        nums = ('8', '7', '6', '5', '4', '3', '2', '1')
+        res = literals[self.width] + nums[self.width]
         return res
 
     def to_CoordinatesSt(self) -> CoordinatesSt:
@@ -90,6 +93,16 @@ def c_list_p_to_python_list(list_p: ctypes.pointer) -> list:
     return res
 
 
+def create_savefile() -> str:
+    if not os.path.exists(path):
+        os.mkdir(path)
+    filename = str(datetime.datetime.now().strftime('%Y_%m_%d_%H-%M-%S')) + '.txt'
+    file = open(path + filename, 'w')
+    file.close()
+    filename = path + filename
+    return filename
+
+
 class Board:
     def __init__(self):
         self.board_p = ctypes.pointer(BoardSt())
@@ -98,6 +111,21 @@ class Board:
         self.list_p1 = ctypes.pointer(CoordinatesListSt())
         self.list_p2 = ctypes.pointer(CoordinatesListSt())
         self.has_eats = False
+        self. savefile = create_savefile()
+        self.move_num = 1
+        self.lines_num = 0
+
+    def write_move(self, c1: Cords, c2: Cords):
+        with open(self.savefile, 'a+') as saves:
+            if self.lines_num != self.move_num:
+                saves.write(str(self.move_num) + ':\t' + c1.to_symbolic_literal() + ':' + c2.to_symbolic_literal())
+                self.lines_num += 1
+            else:
+                saves.write(':' + c2.to_symbolic_literal())
+
+    def write_newline(self):
+        with open(self.savefile, 'a+') as saves:
+            saves.write('\n')
 
     def get_grid(self) -> list:
         grid = [[0 for i in range(8)] for j in range(8)]
@@ -115,6 +143,8 @@ class Board:
 
     def change_turn(self):
         libc.change_turn_and_finally_eat(self.board_p)
+        self.move_num += 1
+        self.write_newline()
 
     def update_get_movable(self) -> list:
         libc.get_movable_cat(self.board_p, self.list_p1, self.list_p2)
@@ -136,6 +166,7 @@ class Board:
     def move_cat(self, c1: Cords, c2: Cords) -> bool:
         if c2.in_list(self.get_moves(c1)):
             libc.move(self.board_p, c1.to_CoordinatesSt(), c2.to_CoordinatesSt())
+            self.write_move(c1, c2)
             return True
         return False
 

@@ -226,7 +226,7 @@ int is_king_able_to_move(Board* board, coordinates cords) {
     coordinates cur;
     cur.height = cords.height;
     cur.width = cords.width;
-    while (cur.height < 8 && cur.width < 8) {
+    while (cur.height < 7 && cur.width < 7) {
         cur.height++;
         cur.width++;
         if (lower_case(get_cat(board, cur)) == enemy) {
@@ -242,7 +242,7 @@ int is_king_able_to_move(Board* board, coordinates cords) {
     }
     cur.height = cords.height;
     cur.width = cords.width;
-    while (cur.height >= 0 && cur.width < 8) {
+    while (cur.height >= 1 && cur.width < 7) {
         cur.height--;
         cur.width++;
         if (lower_case(get_cat(board, cur)) == enemy) {
@@ -258,7 +258,7 @@ int is_king_able_to_move(Board* board, coordinates cords) {
     }
     cur.height = cords.height;
     cur.width = cords.width;
-    while (cur.height < 8 && cur.width >= 0) {
+    while (cur.height < 7 && cur.width >= 1) {
         cur.height++;
         cur.width--;
         if (lower_case(get_cat(board, cur)) == enemy) {
@@ -274,7 +274,7 @@ int is_king_able_to_move(Board* board, coordinates cords) {
     }
     cur.height = cords.height;
     cur.width = cords.width;
-    while (cur.height >= 0 && cur.width >= 0) {
+    while (cur.height >= 1 && cur.width >= 1) {
         cur.height--;
         cur.width--;
         if (lower_case(get_cat(board, cur)) == enemy) {
@@ -387,24 +387,44 @@ void get_king_moves(Board* board, coordinates cords, coordinates_list* list) {
         while (cur.height < 8 && cur.width < 8) {
             cur.height++;
             cur.width++;
-            if (state == 0 && lower_case(get_cat(board, cur)) == enemy) {
-                state = 1;
-            }
-            else if (state == 1 && get_cat(board, cur) == ' ') {
-                state = 0;
-                push_back(list, cur);
-            }
-            else if (state == 1 && lower_case(get_cat(board, cur)) == enemy) {
+            //printf("state - %d, cur - %d, %d, cat - %c\n", state, cur.height, cur.width, cat);
+            if (lower_case(get_cat(board, cur)) == cat) {
                 break;
             }
-            else if (lower_case(get_cat(board, cur)) == cat) {
-                break;
+            if (state == 1) {
+                if (lower_case(get_cat(board, cur)) == enemy)
+                    break;
+                else if (get_cat(board, cur) == ' ') {
+                    push_back(list, cur);
+                    state = 0;
+                }
+            }
+            else {
+                if (lower_case(get_cat(board, cur)) == enemy) {
+                    state = 1;
+                }
             }
         }
     else if (mode == 2)
         while (cur.height < 8 && cur.width < 8) {
             cur.height++;
             cur.width++;
+            if (lower_case(get_cat(board, cur)) == cat) {
+                break;
+            }
+            if (state == 1) {
+                if (lower_case(get_cat(board, cur)) == enemy)
+                    break;
+                else if (get_cat(board, cur) == ' ') {
+                    push_back(list, cur);
+                    state = 0;
+                }
+            }
+            else {
+                if (lower_case(get_cat(board, cur)) == enemy) {
+                    state = 1;
+                }
+            }
         if (get_cat(board, cur) != ' ')
             break;
         push_back(list, cur);
@@ -418,19 +438,24 @@ void get_king_moves(Board* board, coordinates cords, coordinates_list* list) {
         while (cur.height >= 0 && cur.width >= 0) {
             cur.height--;
             cur.width--;
-            if (state == 0 && lower_case(get_cat(board, cur)) == enemy) {
-                state = 1;
-            }
-            else if (state == 1 && get_cat(board, cur) == ' ') {
-                state = 0;
-                push_back(list, cur);
-            }
-            else if (state == 1 && lower_case(get_cat(board, cur)) == enemy) {
+            //printf("state - %d, cur - %d, %d, cat - %c\n", state, cur.height, cur.width, cat);
+            if (lower_case(get_cat(board, cur)) == cat) {
                 break;
             }
-            else if (lower_case(get_cat(board, cur)) == cat) {
-                break;
+            if (state == 1) {
+                if (lower_case(get_cat(board, cur)) == enemy)
+                    break;
+                else if (get_cat(board, cur) == ' ') {
+                    push_back(list, cur);
+                    state = 0;
+                }
             }
+            else {
+                if (lower_case(get_cat(board, cur)) == enemy) {
+                    state = 1;
+                }
+            }
+
         }
     else if (mode == 2)
         while (cur.height >= 0 && cur.width >= 0) {
@@ -449,19 +474,24 @@ void get_king_moves(Board* board, coordinates cords, coordinates_list* list) {
         while (cur.height < 8 && cur.width >= 0) {
             cur.height++;
             cur.width--;
-            if (state == 0 && lower_case(get_cat(board, cur)) == enemy) {
-                state = 1;
-            }
-            else if (state == 1 && get_cat(board, cur) == ' ') {
-                state = 0;
-                push_back(list, cur);
-            }
-            else if (state == 1 && lower_case(get_cat(board, cur)) == enemy) {
+            //printf("state - %d, cur - %d, %d, cat - %c\n", state, cur.height, cur.width, cat);
+            if (lower_case(get_cat(board, cur)) == cat) {
                 break;
             }
-            else if (lower_case(get_cat(board, cur)) == cat) {
-                break;
+            if (state == 1) {
+                if (lower_case(get_cat(board, cur)) == enemy)
+                    break;
+                else if (get_cat(board, cur) == ' ') {
+                    push_back(list, cur);
+                    state = 0;
+                }
             }
+            else {
+                if (lower_case(get_cat(board, cur)) == enemy) {
+                    state = 1;
+                }
+            }
+
         }
     else if (mode == 2)
         while (cur.height < 8 && cur.width >= 0) {
@@ -479,19 +509,24 @@ void get_king_moves(Board* board, coordinates cords, coordinates_list* list) {
         while (cur.height >= 0 && cur.width < 8) {
             cur.height--;
             cur.width++;
-            if (state == 0 && lower_case(get_cat(board, cur)) == enemy) {
-                state = 1;
-            }
-            else if (state == 1 && get_cat(board, cur) == ' ') {
-                state = 0;
-                push_back(list, cur);
-            }
-            else if (state == 1 && lower_case(get_cat(board, cur)) == enemy) {
+            //printf("state - %d, cur - %d, %d, cat - %c\n", state, cur.height, cur.width, cat);
+            if (lower_case(get_cat(board, cur)) == cat) {
                 break;
             }
-            else if (lower_case(get_cat(board, cur)) == cat) {
-                break;
+            if (state == 1) {
+                if (lower_case(get_cat(board, cur)) == enemy)
+                    break;
+                else if (get_cat(board, cur) == ' ') {
+                    push_back(list, cur);
+                    state = 0;
+                }
             }
+            else {
+                if (lower_case(get_cat(board, cur)) == enemy) {
+                    state = 1;
+                }
+            }
+
         }
     else if (mode == 2)
         while (cur.height >= 0 && cur.width < 8) {
@@ -625,6 +660,7 @@ int king_eat(Board* board, coordinates first, coordinates end) {
         coordinates cur = upper;
         cur.height++;
         cur.width++;
+        disable_cat(board, cur);
         while (cur.height < lower.height - 1 && cur.width < lower.width - 1) {
             disable_cat(board, cur);
             cur.height++;
@@ -636,6 +672,7 @@ int king_eat(Board* board, coordinates first, coordinates end) {
         coordinates cur = upper;
         cur.height++;
         cur.width--;
+        disable_cat(board, cur);
         while (cur.height < lower.height - 1 && cur.width > lower.width + 1) {
             disable_cat(board, cur);
             cur.height++;

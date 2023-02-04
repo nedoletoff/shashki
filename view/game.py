@@ -3,6 +3,7 @@ import time
 
 import pygame
 import model.board
+import model.text_viewer
 from enum import Enum
 import sys
 import subprocess
@@ -100,7 +101,7 @@ class Game:
 
                 if ev.type == pygame.QUIT:
                     pygame.quit()
-                    return
+                    return 'quit'
 
                     # checks if a mouse is clicked
                 if ev.type == pygame.MOUSEBUTTONDOWN:
@@ -117,7 +118,7 @@ class Game:
                                 return "story"
                             if i == 3:
                                 pygame.quit()
-                                return
+                                return 'quit'
 
             # fills the screen with a color
             for i in range(4):
@@ -240,10 +241,16 @@ class Game:
 def main():
     game = Game()
     mode = game.start_menu()
-    if mode == 'bot_game':
-        mode = game.draw_game()
-    if mode == 'human_game':
-        mode = game.draw_game()
+    while True:
+        if mode == 'bot_game':
+            mode = game.draw_game()
+        if mode == 'human_game':
+            mode = game.draw_game()
+        if mode == 'story':
+            model.text_viewer.open_list_files()
+            mode = game.start_menu()
+        if mode == 'quit':
+            break
 
 
 if __name__ == '__main__':
