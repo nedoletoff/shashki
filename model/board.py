@@ -9,6 +9,7 @@ class BoardSt(ctypes.Structure):
                 ('white_num', ctypes.c_char),
                 ('grey_num', ctypes.c_char),
                 ('turn', ctypes.c_char),
+                ('eaten', ctypes.c_char),
                 ('no_eat_counter', ctypes.c_int),
                 ('has_moves', ctypes.c_int)]
 
@@ -66,6 +67,8 @@ class Cords:
         return res
 
     def to_CoordinatesSt(self) -> CoordinatesSt:
+        if self is None:
+            raise Exception("Cords are None")
         cur = CoordinatesSt()
         cur.height = self.height
         cur.width = self.width
@@ -94,6 +97,7 @@ class Board:
         self.movable_list = list()
         self.list_p1 = ctypes.pointer(CoordinatesListSt())
         self.list_p2 = ctypes.pointer(CoordinatesListSt())
+        self.has_eats = False
 
     def get_grid(self) -> list:
         grid = [[0 for i in range(8)] for j in range(8)]
@@ -102,14 +106,24 @@ class Board:
                 grid[i][j] = self.board_p.contents.grid[i][j].decode("utf-8")
         return grid
 
+    def get_eaten(self) -> bool:
+        return self.board_p.contents.eaten > bytes(1)
+
     def is_game_ended(self) -> str:
         r = libc.is_game_over(self.board_p)
         return r.decode("utf-8")
 
+    def change_turn(self):
+        libc.change_turn_and_finally_eat(self.board_p)
+
     def update_get_movable(self) -> list:
         libc.get_movable_cat(self.board_p, self.list_p1, self.list_p2)
         self.movable_list = c_list_p_to_python_list(self.list_p1)
-        self.movable_list += c_list_p_to_python_list(self.list_p2)
+        if len(self.movable_list) == 0:
+            self.has_eats = True
+            self.movable_list = c_list_p_to_python_list(self.list_p2)
+        else:
+            self.has_eats = False
         return self.movable_list
 
     def get_moves(self, cords: Cords) -> list:
@@ -121,18 +135,31 @@ class Board:
 
     def move_cat(self, c1: Cords, c2: Cords) -> bool:
         if c2.in_list(self.get_moves(c1)):
-            libc.move_cat(self.board_p, c1.to_CoordinatesSt(), c2.to_CoordinatesSt())
+            libc.move(self.board_p, c1.to_CoordinatesSt(), c2.to_CoordinatesSt())
             return True
         return False
+
+    def can_eat(self, cell: Cords) -> bool:
+        cell_st = cell.to_CoordinatesSt()
+        return libc.is_able_to_move(self.board_p, cell_st) == 1
+
+    def print_text(self):
+        grid = self.get_grid()
+        for i in grid:
+            for j in i:
+                print(j, end='')
+            print()
 
 
 if __name__ == "__main__":
     b = Board()
-    print(b.get_grid())
+    print(b.get_eaten())
     for e in b.update_get_movable():
         print(e.to_text())
+        pass
     for e in b.get_moves(b.movable_list[0]):
-        print(e.to_text())
+        # print(e.to_text())
+        pass
     c1 = Cords()
     c1.height = 5
     c1.width = 7

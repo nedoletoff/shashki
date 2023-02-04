@@ -1,7 +1,9 @@
+import enum
 import time
 
 import pygame
 import model.board
+from enum import Enum
 import sys
 import subprocess
 
@@ -18,7 +20,6 @@ def what_cell(mouse: tuple, size: int) -> model.board.Cords:
     if 0 < mouse[0] <= size and 0 < mouse[1] <= size:
         res.width = int(mouse[0] / gap)
         res.height = int(mouse[1] / gap)
-    print(res.to_text())
     return res
 
 
@@ -140,43 +141,44 @@ class Game:
             pygame.display.update()
 
     def draw_game(self):
-        state = True
+        state = "not selected, move has not done"
         cur = None
+        selected = None
         board = model.board.Board()
-        movable_cats = board.get_movable()
-        print(movable_cats)
-        for i in movable_cats:
-            print(i.to_text(), end='\t')
+        movable_cats = board.update_get_movable()
         moves = list()
         field_list = board.get_grid()
+        has_eat = board.get_eaten()
 
-        def draw_cats(field_list: list):
+        def draw_cats(f_list: list):
             for i, ipos in enumerate(range(0, self.window_size, self.window_size // 8)):
                 for j, jpos in enumerate(range(0, self.window_size, self.window_size // 8)):
-                    if field_list[j][i] == 'w':
-                        self.screen.blit(self.white_cat, (ipos, jpos))
-                    if field_list[j][i] == 'W':
-                        self.screen.blit(self.white_king, (ipos, jpos))
-                    if field_list[j][i] == 'g':
-                        self.screen.blit(self.grey_cat, (ipos, jpos))
-                    if field_list[j][i] == 'G':
-                        self.screen.blit(self.grey_king, (ipos, jpos))
+                    if f_list[i][j] == 'w':
+                        self.screen.blit(self.white_cat, (jpos, ipos))
+                    if f_list[i][j] == 'W':
+                        self.screen.blit(self.white_king, (jpos, ipos))
+                    if f_list[i][j] == 'g':
+                        self.screen.blit(self.grey_cat, (jpos, ipos))
+                    if f_list[i][j] == 'G':
+                        self.screen.blit(self.grey_king, (jpos, ipos))
 
         def draw_highlighted(clicked: model.board.Cords, mode: bool):
+            global moves, movable_cat
             gap = self.window_size // 8
             if mode or clicked is None:  # highlight movable cats
                 for cat in movable_cats:
                     pygame.draw.rect(self.screen, self.color_blue,
-                                     (cat.height * gap, cat.width * gap, gap, gap))
+                                     (cat.width * gap, cat.height * gap, gap, gap))
             else:
                 pygame.draw.rect(self.screen, self.color_orange,
-                                 clicked.height * gap, clicked.width * gap, gap, gap)
+                                 (clicked.width * gap, clicked.height * gap, gap, gap))
+                moves = board.get_moves(clicked)
                 for cell in moves:
                     pygame.draw.rect(self.screen, self.color_blue,
-                                     (cell.height * gap, cell.width * gap, gap, gap))
+                                     (cell.width * gap, cell.height * gap, gap, gap))
 
         while True:
-            time.sleep(0.05)
+            time.sleep(0.1)
             mouse = pygame.mouse.get_pos()
             self.draw_buttons()
             self.screen.blit(self.field, (0, 0))
@@ -186,24 +188,61 @@ class Game:
                     return
                 if ev.type == pygame.MOUSEBUTTONDOWN:
                     cur = what_cell(mouse, self.window_size)
-                    if cur in movable_cats:
-                        state = False
-                    else:
-                        state = True
-                        cur = None
+                    if state == "not selected, move has not done":  # cell unselected, move have not done
+                        if cur.in_list(movable_cats):
+                            state = "selected, move has not done"
+                            selected = cur
+                        else:
+                            state = "not selected, move has not done"
+                            cur = None
+                            selected = None
+                    elif state == "selected, move has not done":
+                        if cur.in_list(board.get_moves(selected)):
+                            board.move_cat(selected, cur)
+                            field_list = board.get_grid()
+                            state = "selected, move has done"
+                            has_eat = board.get_eaten()
+                            selected = cur
+                        else:
+                            selected = None
+                            cur = None
+                            state = "not selected, move has not done"
+                    if state == "selected, move has done":
+                        # board.print_text()
+                        if has_eat and board.can_eat(selected):
+                            if cur.in_list(board.get_moves(selected)):
+                                board.move_cat(selected, cur)
+                                field_list = board.get_grid()
+                                state = "selected, move has done"
+                                has_eat = True
+                                selected = cur
+                        else:
+                            board.change_turn()
+                            state = "not selected, move has not done"
+                            cur = None
+                            selected = None
+                            movable_cats = board.update_get_movable()
+                            moves = list()
+                            field_list = board.get_grid()
+                            has_eat = board.get_eaten()
 
-                    # if the mouse is clicked on the
-
-                # add ev to update field_list
-            draw_highlighted(cur, state)
+            movable_cats = board.update_get_movable()
+            draw_highlighted(cur, state == "not selected, move has not done")
             draw_cats(field_list)
             pygame.display.update()
+
+            if board.is_game_ended() != 'n':
+                break
+
+        print(board.is_game_ended(), " win")
 
 
 def main():
     game = Game()
     mode = game.start_menu()
     if mode == 'bot_game':
+        mode = game.draw_game()
+    if mode == 'human_game':
         mode = game.draw_game()
 
 

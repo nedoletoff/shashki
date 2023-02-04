@@ -10,6 +10,7 @@ Board initBoard() {
     res.turn = 'w';
     res.white_num = 12;
     res.grey_num = 12;
+    res.eaten = 0;
     for (char i = 0; i < 8; i++)
         for (char j = 0; j < 8; j++) {
             if ((i + j) % 2 == 0 && (i < 3))
@@ -27,6 +28,7 @@ void initB(Board* board) {
     board->turn = 'w';
     board->white_num = 12;
     board->grey_num = 12;
+    board->eaten = 0;
 
     for (char i = 0; i < 8; i++)
         for (char j = 0; j < 8; j++) {
@@ -52,12 +54,10 @@ char lower_case(char val) {
 }
 
 char get_enemy(char val) {
-    val = lower_case(val);
-    if (val == 'g')
+    if (val == 'g' || val == 'G')
         return 'w';
-    else if (val == 'w')
+    else if (val == 'w' || val == 'W')
         return 'g';
-    printf("Wrong in enemy not g or w, %c - enemy(%d)\n", val, val);
     return '\0';
 }
 
@@ -116,8 +116,8 @@ int check_cat(Board* board, coordinates cords) {
         return 1;
     }
     else if (cat == 'e') {
-        printf("Cat height - %d, width - %d should be deleted in next move\n",
-         cords.height, cords.width);
+        //printf("Cat height - %d, width - %d should be deleted in next move\n",
+        // cords.height, cords.width);
         return 1;
     }
     else
@@ -150,6 +150,10 @@ int remove_cat(Board* board, coordinates cords) {
         board->grid[cords.height][cords.width] = ' ';
         return 0;
     }
+    else if (cat == 'e') {
+        board->grid[cords.height][cords.width] = ' ';
+        return 0;
+    }
     return 1;
 }
 
@@ -166,11 +170,13 @@ int disable_cat(Board* board, coordinates cords) {
     if (cat == 'W' || cat == 'w') {
         board->white_num--;
         board->grid[cords.height][cords.width] = 'e';
+        board->eaten = 15;
         return 0;
     }
     else if (cat == 'G' || cat == 'g') {
         board->grey_num--;
         board->grid[cords.height][cords.width] = 'e';
+        board->eaten = 15;
         return 0;
     }
     return 1;
@@ -218,17 +224,12 @@ int add_cat(Board* board, char cat, coordinates cords) {
 }
 
 int is_king_able_to_move(Board* board, coordinates cords) {
+    printf("start func is_king_able_to_move\n");
     char cat = get_cat(board, cords);
     char enemy = get_enemy(cat);
+    printf("king enemy - %c", enemy);
     int counter = 0;
     coordinates cur;
-    int default_coef;
-    if (cat == 'W')
-        default_coef = 1;
-    else if (cat == 'G')
-        default_coef = -1;
-    else
-        return 0;
     cur.height = cords.height;
     cur.width = cords.width;
     while (cur.height < 8 && cur.width < 8) {
@@ -295,12 +296,13 @@ int is_king_able_to_move(Board* board, coordinates cords) {
     }
     if (counter > 0)
         return 2;
-    else
-        return 0;
+
+    printf("king cannot move\n");
+    return 0;
 
 }
 
-int is_able_to_move(Board* board, coordinates cords) {
+int is_usual_able_to_move(Board* board, coordinates cords) {
     char cat = get_cat(board, cords);
     char enemy = get_enemy(cat);
     coordinates cur;
@@ -310,7 +312,7 @@ int is_able_to_move(Board* board, coordinates cords) {
     else if (cat == 'g')
         default_coef = -1;
     else
-        return is_king_able_to_move(board, cords);
+        return 0;
 
     cur.height = cords.height - 1 * default_coef;
     cur.width = cords.width - 1;
@@ -362,6 +364,19 @@ int is_able_to_move(Board* board, coordinates cords) {
     }
 
     return 0;
+}
+
+int is_able_to_move(Board* board, coordinates cords) {
+    char cat = get_cat(board, cords);
+    if (cat != 'w' && cat != 'g') {
+        printf("%c, %d - cat\t", cat, cat);
+        printf("%d - height, %d - width\n", cords.height, cords.width);
+    }
+    if (cat == 'W' || cat == 'G') {
+        return is_king_able_to_move(board, cords);
+    }
+    else
+        return is_usual_able_to_move(board, cords);
 }
 
 void get_king_moves(Board* board, coordinates cords, coordinates_list* list) {
@@ -540,6 +555,7 @@ int usual_eat(Board* board, coordinates first, coordinates end) {
         }
 
         disable_cat(board, enemy);
+        move_cat(board, first, end);
     }
     return 0;
 }
@@ -575,6 +591,7 @@ int king_eat(Board* board, coordinates first, coordinates end) {
 
     while (h_max != h_min && w_max != w_min)
         disable_cat_int_int(board, h_min++, w_min++);
+    move_cat(board, first, end);
     return 0;
 }
 
@@ -590,24 +607,22 @@ int eat(Board* board, coordinates first, coordinates end) {
 }
 
 void change_turn_and_finally_eat(Board* board) {
-    int eat_counter = 0;
     for (int i = 0; i < 8; i++)
         for (int j = 0; j < 8; j++)
             if (board->grid[i][j] == 'e') {
-                eat_counter++;
                 coordinates cords = {i, j};
                 remove_cat(board, cords);
             }
     change_turn(board);
-    if (eat_counter > 0)
+    if (board->eaten != 0) {
         board->no_eat_counter = 0;
+        board->eaten = 0;
+    }
 }
 
 int move(Board* board, coordinates first, coordinates end) {
     if (is_able_to_move(board, first) == 1) {
         eat(board, first, end);
-        if (is_able_to_move(board, end) == 1)
-            return 1;
     }
     if (is_able_to_move(board, first) == 2)
         move_cat(board, first, end);
@@ -647,25 +662,27 @@ void get_movable_cat(Board* board, coordinates_list* moves, coordinates_list* ea
         for (int j = 0; j < 8; j++) {
             coordinates cords = {i, j};
             if (board->turn == get_cat(board, cords) ||
-                upper_case(board->turn) == get_cat(board, cords)) {
-                //printf("%d - height, %d - width, %d - is able to move\n", i, j, is_able_to_move(board, cords));
+                board->turn == lower_case(get_cat(board, cords))) {
 
-                if (is_able_to_move(board, cords) == 1) {
+                switch (is_able_to_move(board, cords)) {
+                case 1:
                     push_back(eats, cords);
                     board->has_moves = 1;
-                }
-                if (is_able_to_move(board, cords) == 2) {
+                    break;
+                case 2:
                     push_back(moves, cords);
                     board->has_moves = 1;
+                    break;
                 }
+
             }
         }
     if (eats->size > 0) {
-        printf("eats not zero\n");
+        //printf("eats not zero\n");
         destroy(moves);
         initCL(moves);
     }
-    printf("eats - %d, moves - %d\n", eats->size, moves->size);
+    //printf("eats - %d, moves - %d\n", eats->size, moves->size);
 
 }
 

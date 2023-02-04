@@ -7,6 +7,7 @@ typedef struct Board {
     char white_num;
     char grey_num;
     char turn;
+    char eaten;
     int no_eat_counter;
     int has_moves;
 } Board;
