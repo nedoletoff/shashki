@@ -1,6 +1,8 @@
+import win32ui
 from tkinter import *
 from tkinter import scrolledtext
 from tkinter import filedialog
+
 import ctypes
 
 file_to_open = ''
@@ -13,7 +15,6 @@ def open_file():
         file_to_open = filedialog.askopenfilename(filetypes=file_types, initialdir="saves/")
     except Exception as e:
         return
-    print("OpenFile")
     if file_to_open.__len__() == 0:
         return
 
@@ -35,6 +36,8 @@ def open_list_files():
     app_name = 'Просмотр игр'
 
     open_file()
+    if file_to_open.__len__() == 0:
+        return
 
     window = Tk()
     window.grid_columnconfigure(0, weight=1)

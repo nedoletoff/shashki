@@ -1,10 +1,9 @@
-import enum
 import time
 
 import pygame
 import model.board
 import model.text_viewer
-from enum import Enum
+import logging
 import sys
 import subprocess
 
@@ -243,11 +242,14 @@ def main():
     mode = game.start_menu()
     while True:
         if mode == 'bot_game':
-            mode = game.draw_game()
+            game.draw_game()
         if mode == 'human_game':
-            mode = game.draw_game()
+            game.draw_game()
         if mode == 'story':
-            model.text_viewer.open_list_files()
+            try:
+                model.text_viewer.open_list_files()
+            except Exception as e:
+                raise e
             mode = game.start_menu()
         if mode == 'quit':
             break
