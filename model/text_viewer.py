@@ -1,3 +1,5 @@
+import logging
+
 import win32ui
 from tkinter import *
 from tkinter import scrolledtext
@@ -5,6 +7,13 @@ from tkinter import filedialog
 
 import ctypes
 
+logging.basicConfig(
+    filename="logs.log",
+    format='%(asctime)s %(levelname)s %(message)s',
+    level=logging.INFO,
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+log = logging.getLogger("ex")
 file_to_open = ''
 file_types = [("Text Files", "*.txt"), ("Markdown", "*.md")]
 
@@ -14,9 +23,9 @@ def open_file():
     try:
         file_to_open = filedialog.askopenfilename(filetypes=file_types, initialdir="saves/")
     except Exception as e:
-        return
+        log.exception(e)
     if file_to_open.__len__() == 0:
-        return
+        log.exception(Exception("File name is null"))
 
 
 def update(txt: scrolledtext.ScrolledText):
@@ -32,7 +41,7 @@ def open_file_and_update(txt: scrolledtext.ScrolledText):
 
 
 def open_list_files():
-    #ctypes.windll.shcore.SetProcessDpiAwareness(True)
+    ctypes.windll.shcore.SetProcessDpiAwareness(True)
     app_name = 'Просмотр игр'
 
     open_file()

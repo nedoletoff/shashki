@@ -7,6 +7,14 @@ import logging
 import sys
 import subprocess
 
+logging.basicConfig(
+    filename="logs.log",
+    format='%(asctime)s %(levelname)s %(message)s',
+    level=logging.INFO,
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+log = logging.getLogger("ex")
+
 
 def is_in_rect(rect: list, mouse: tuple) -> bool:
     return rect[0] <= mouse[0] <= rect[0] + rect[2] and rect[1] <= mouse[1] <= rect[1] + rect[3]
@@ -249,11 +257,14 @@ def main():
             try:
                 model.text_viewer.open_list_files()
             except Exception as e:
-                raise e
+                log.exception(e)
             mode = game.start_menu()
         if mode == 'quit':
             break
 
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except Exception as e:
+        log.exception(e)
