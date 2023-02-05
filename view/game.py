@@ -195,6 +195,26 @@ class Game:
                     pygame.quit()
                     return
                 if ev.type == pygame.MOUSEBUTTONDOWN:
+                    if is_in_rect(l := [0, self.window_size, int(self.window_size / 2), self.button_w], mouse):
+                        if board.get_turn() == 'w':
+                            print("grey wins")
+                            board.write_win('g')
+                            return
+                        else:
+                            print("white wins")
+                            board.write_win('w')
+                            return
+
+                    if is_in_rect(l := [w := int(self.window_size / 2), self.window_size, w, self.button_w], mouse):
+                        board.change_board_to_prev()
+                        state = "not selected, move has not done"
+                        selected = None
+                        board = model.board.Board()
+                        movable_cats = board.update_get_movable()
+                        moves = list()
+                        field_list = board.get_grid()
+                        has_eat = board.get_eaten()
+
                     cur = what_cell(mouse, self.window_size)
                     if state == "not selected, move has not done":  # cell unselected, move have not done
                         if cur.in_list(movable_cats):

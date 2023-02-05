@@ -39,6 +39,21 @@ class CoordinatesListSt(ctypes.Structure):
                 ('size', ctypes.c_int)]
 
 
+class NodeBSt(ctypes.Structure):
+    pass
+
+
+NodeBSt._fields_ = [('val', BoardSt),
+                    ('prev', ctypes.POINTER(NodeSt)),
+                    ('next', ctypes.POINTER(NodeSt))]
+
+
+class BoardsListSt(ctypes.Structure):
+    _fields_ = [('head', ctypes.POINTER(NodeSt)),
+                ('tail', ctypes.POINTER(NodeSt)),
+                ('size', ctypes.c_int)]
+
+
 # board.c functions
 libc.initBoard.restype = BoardSt
 libc.is_game_over.restype = ctypes.c_char
@@ -111,11 +126,15 @@ class Board:
         self.list_p1 = ctypes.pointer(CoordinatesListSt())
         self.list_p2 = ctypes.pointer(CoordinatesListSt())
         self.has_eats = False
-        self. savefile = create_savefile()
+        self.savefile = create_savefile()
         self.move_num = 1
         self.lines_num = 0
+        self.list_boards = ctypes.pointer(BoardsListSt())
+        libc.initBL(self.list_boards)
+        self.save_board()
 
     def write_move(self, c1: Cords, c2: Cords):
+        #libc.printBL(self.list_boards)
         with open(self.savefile, 'a+') as saves:
             if self.lines_num != self.move_num:
                 saves.write(str(self.move_num) + ':\t' + c1.to_symbolic_literal() + ':' + c2.to_symbolic_literal())
@@ -123,9 +142,38 @@ class Board:
             else:
                 saves.write(':' + c2.to_symbolic_literal())
 
+    def write_win(self, win: str):
+        with open(self.savefile, 'a+') as saves:
+            if win == 'w':
+                saves.write("White wins\n")
+            elif win == 'g':
+                saves.write("Grey wins\n")
+
     def write_newline(self):
         with open(self.savefile, 'a+') as saves:
             saves.write('\n')
+
+    def delete_move(self):
+        with open(self.savefile, 'r+') as saves:
+            saves.seek(0, os.SEEK_END)
+            pos = saves.tell() - 1
+
+            while pos > 0 and (saves.read(1) != "\n" or saves.read(1) != ':'):
+                pos -= 1
+                saves.seek(pos, os.SEEK_SET)
+
+            if pos > 0:
+                saves.seek(pos, os.SEEK_SET)
+                saves.truncate()
+
+    def save_board(self):
+        print("save_board")
+        libc.push_back(self.list_boards, self.board_p)
+        print(self.list_boards.contents.size)
+
+    def change_board_to_prev(self):
+        libc.pop_backBL(self.list_boards, self.board_p)
+        self.delete_move()
 
     def get_grid(self) -> list:
         grid = [[0 for i in range(8)] for j in range(8)]
@@ -139,12 +187,19 @@ class Board:
 
     def is_game_ended(self) -> str:
         r = libc.is_game_over(self.board_p)
+        if r.decode("utf-8") != 'n':
+            libc.destroy(self.list_boards)
+            self.write_win(r.decode("utf-8"))
+
         return r.decode("utf-8")
 
     def change_turn(self):
         libc.change_turn_and_finally_eat(self.board_p)
         self.move_num += 1
         self.write_newline()
+
+    def get_turn(self) -> str:
+        return self.board_p.contents.turn.decode("utf-8")
 
     def update_get_movable(self) -> list:
         libc.get_movable_cat(self.board_p, self.list_p1, self.list_p2)
@@ -167,6 +222,7 @@ class Board:
         if c2.in_list(self.get_moves(c1)):
             libc.move(self.board_p, c1.to_CoordinatesSt(), c2.to_CoordinatesSt())
             self.write_move(c1, c2)
+            self.save_board()
             return True
         return False
 
