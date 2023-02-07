@@ -34,3 +34,4 @@ int get_grey_num(Board board);
 void change_turn_and_finally_eat(Board* board);
 int move_cat(Board* board, coordinates cords1, coordinates cords2);
 void print_board(Board* board);
+void get_copy(Board* self, Board* other);

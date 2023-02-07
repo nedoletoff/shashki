@@ -777,6 +777,22 @@ void get_movable_cat(Board* board, coordinates_list* moves, coordinates_list* ea
 
 }
 
+void get_copy(Board* self, Board* other) {
+    if (self == other)
+        return;
+
+    for (int i = 0; i < 8; ++i)
+        for (int j = 0; j < 8; ++j)
+            other->grid[i][j] = self->grid[i][j];
+
+    other->white_num = self->white_num;
+    other->grey_num = self->grey_num;
+    other->turn = self->turn;
+    other->eaten = self->eaten;
+    other->no_eat_counter = self->no_eat_counter;
+    other->has_moves = self->has_moves;
+}
+
 int main() {
     Board board;
     initB(&board);
