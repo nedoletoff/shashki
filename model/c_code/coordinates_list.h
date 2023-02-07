@@ -29,4 +29,5 @@ int set(coordinates_list*, int, coordinates);
 int get(coordinates_list*, int, coordinates*);
 void erase(coordinates_list*, node_t*);
 void pop_back(coordinates_list*, coordinates*);
+void pop_front(coordinates_list, coordinates*);
 

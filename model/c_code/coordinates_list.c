@@ -150,4 +150,21 @@ void pop_back(coordinates_list* l, coordinates* res)
   --l->size;
 }
 
+void pop_front(coordinates_list, coordinates*)
+{
+  if (l->size == 0)
+    return;
+  node_t* cur = l->head;
+  res->height = cur->value.height;
+  res->width = cur->value.width;
+
+  l->head = cur->next;
+  if (l->head != NULL)
+    l->head->prev = NULL;
+  else
+    l->tail = NULL;
+  free(cur);
+  --l->size;
+}
+
 
