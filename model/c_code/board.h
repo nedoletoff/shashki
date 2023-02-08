@@ -13,6 +13,7 @@ typedef struct Board {
 } Board;
 
 void change_turn(Board* board);
+char lower_case(char);
 char get_cat(Board* board, coordinates coord);
 int is_able_to_move(Board* board, coordinates cords);
 int check_cat(Board* board, coordinates cords);
@@ -35,3 +36,5 @@ void change_turn_and_finally_eat(Board* board);
 int move_cat(Board* board, coordinates cords1, coordinates cords2);
 void print_board(Board* board);
 void get_copy(Board* self, Board* other);
+Board get_Board(Board*);
+

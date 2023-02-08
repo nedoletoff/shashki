@@ -148,7 +148,7 @@ class Game:
             # updates the frames of the game
             pygame.display.update()
 
-    def draw_game(self):
+    def draw_game(self, mode):
         state = "not selected, move has not done"
         cur = None
         selected = None
@@ -186,6 +186,9 @@ class Game:
                                      (cell.width * gap, cell.height * gap, gap, gap))
 
         while True:
+            if mode == 'bot' and board.get_turn() == 'g' and board.is_game_ended() == 'n':
+                board.make_ai_move()
+                board.change_turn()
             time.sleep(0.1)
             mouse = pygame.mouse.get_pos()
             self.draw_buttons()
@@ -270,9 +273,9 @@ def main():
     mode = game.start_menu()
     while True:
         if mode == 'bot_game':
-            game.draw_game()
+            game.draw_game('bot')
         if mode == 'human_game':
-            game.draw_game()
+            game.draw_game('human')
         if mode == 'story':
             try:
                 model.text_viewer.open_list_files()

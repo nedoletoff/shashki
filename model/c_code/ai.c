@@ -1,18 +1,14 @@
 #include "ai.h"
-
-char lower_case(char val) {
-    if (val >= 'A' && val <= 'Z') {
-        return val + 32;
-    }
-    return val;
-}
+#include <stdio.h>
+#include <stdlib.h>
+long long count;
 
 int get_score(Board* board) {
     int score = 0;
-    coordinates_list* list;
+    coordinates_list* list = (coordinates_list*) malloc(sizeof(coordinates_list));
     initCL(list);
-    for (int i = 0; i++; i < 8)
-        for (int j = 0; j++; j < 8)
+    for (int i = 0; i < 8; i++)
+        for (int j = 0; j < 8; j++)
             {
                 coordinates cur = {i, j};
                 char cat = get_cat(board, cur);
@@ -30,32 +26,35 @@ int get_score(Board* board) {
 }
 
 int get_best_moves(Board* board, int deep, char color) {
-    if (deep == 0)
+    printf("deep - %d\n", deep);
+    print_board(board);
+    if (deep <= 0)
         return get_score(board);
     change_turn_and_finally_eat(board);
     if (is_game_over(board) == color)
         return 1000;
 
     int max_score = -1;
-    int arg_max_score;
     int max_scores[] = {-1, -1, -1};
 
     const int max_size = 3;
-    Board* cur_board;
+    Board* cur_board = (Board*) malloc(sizeof(Board));
 
     // изменяемые
     Board* mas_boards[max_size];
+    for (int i = 0; i < max_size; i++)
+        mas_boards[i] = (Board*) malloc(sizeof(Board));
     int size = 0;
 
     // временные
     int cur_score = -1;
     coordinates cur_movable_cat;
     coordinates cur_move;
-    coordinates_list* moves_cur_cat;
+    coordinates_list* moves_cur_cat = (coordinates_list*) malloc(sizeof(coordinates_list));
     initCL(moves_cur_cat);
-    coordinates_list* mov_on_turn;
+    coordinates_list* mov_on_turn = (coordinates_list*) malloc(sizeof(coordinates_list));
     initCL(mov_on_turn);
-    coordinates_list* eat_on_turn;
+    coordinates_list* eat_on_turn = (coordinates_list*) malloc(sizeof(coordinates_list));
     initCL(eat_on_turn);
 
     // шашки, которые могут двигаться
@@ -101,11 +100,13 @@ int get_best_moves(Board* board, int deep, char color) {
                 temp_cat.height = cur_move.height;
                 temp_cat.width = cur_move.width;
 
-                coordinates_list* t_moves;
+                coordinates_list* t_moves = (coordinates_list*) malloc(sizeof(coordinates_list));
                 initCL(t_moves);
+    printf("deep - %d\n", deep);
                 get_moves(cur_board, temp_cat, t_moves);
                 pop_back(t_moves, &cur_move);
                 destroy(t_moves);
+                free(t_moves);
                 move_cat(cur_board, temp_cat, cur_move);
             }
 
@@ -125,16 +126,20 @@ int get_best_moves(Board* board, int deep, char color) {
         }
     }
 
+    printf("deep - %d\n", deep);
     if (size == 1) {
         return get_score(cur_board);
     }
 
     // вызываем рекурсию
     for (int i = 0; i < size; i++) {
+         //print_board(mas_boards[i]);
          cur_score = get_best_moves(mas_boards[i], deep-1, color);
+         printf("damn\n");
          if (max_score < cur_score) {
             max_score = cur_score;
          }
+        free(mas_boards[i]);
     }
     return max_score;
 }
@@ -148,11 +153,15 @@ void get_best_moves_wrapper(Board* board, coordinates_list* list_of_moves,
     int max_scores[] = {-1, -1, -1};
 
     const int max_size = 3;
-    Board* cur_board;
+    Board* cur_board = (Board*) malloc(sizeof(Board));
 
     // изменяемые
     Board* mas_boards[max_size];
+    for (int i = 0; i < max_size; i++)
+        mas_boards[i] = (Board*) malloc(sizeof(Board));
     coordinates_list* mas_lists_of_moves[max_size];
+    for (int i = 0; i < max_size; i++)
+        mas_lists_of_moves[i] = (coordinates_list*) malloc(sizeof(coordinates_list));
     coordinates mas_movable_cat[max_size];
     int size = 0;
 
@@ -160,11 +169,11 @@ void get_best_moves_wrapper(Board* board, coordinates_list* list_of_moves,
     int cur_score = -1;
     coordinates cur_movable_cat;
     coordinates cur_move;
-    coordinates_list* moves_cur_cat;
+    coordinates_list* moves_cur_cat = (coordinates_list*) malloc(sizeof(coordinates_list));
     initCL(moves_cur_cat);
-    coordinates_list* mov_on_turn;
+    coordinates_list* mov_on_turn = (coordinates_list*) malloc(sizeof(coordinates_list));
     initCL(mov_on_turn);
-    coordinates_list* eat_on_turn;
+    coordinates_list* eat_on_turn = (coordinates_list*) malloc(sizeof(coordinates_list));
     initCL(eat_on_turn);
 
     // шашки, которые могут двигаться
@@ -207,7 +216,7 @@ void get_best_moves_wrapper(Board* board, coordinates_list* list_of_moves,
         pop_back(eat_on_turn, &cur_movable_cat);
         get_moves(board, cur_movable_cat, moves_cur_cat);
         while (moves_cur_cat->size > 0) {
-            coordinates_list* temp_moves;
+            coordinates_list* temp_moves = (coordinates_list*) malloc(sizeof(coordinates_list));
             initCL(temp_moves);
             get_copy(board, cur_board);
             pop_back(moves_cur_cat, &cur_move);
@@ -219,7 +228,7 @@ void get_best_moves_wrapper(Board* board, coordinates_list* list_of_moves,
                 temp_cat.height = cur_move.height;
                 temp_cat.width = cur_move.width;
 
-                coordinates_list* t_moves;
+                coordinates_list* t_moves = (coordinates_list*) malloc(sizeof(coordinates_list));
                 initCL(t_moves);
                 get_moves(cur_board, temp_cat, t_moves);
                 pop_back(t_moves, &cur_move);
@@ -249,6 +258,7 @@ void get_best_moves_wrapper(Board* board, coordinates_list* list_of_moves,
                 }
                 if (check) {
                 destroy(temp_moves);
+                free(temp_moves);
                 }
             }
         }
@@ -258,6 +268,7 @@ void get_best_moves_wrapper(Board* board, coordinates_list* list_of_moves,
         list_of_moves = mas_lists_of_moves[0];
         movable_cat->height = mas_movable_cat[0].height;
         movable_cat->width = mas_movable_cat[0].width;
+        //free(cur_board);
         return;
     }
 
@@ -267,18 +278,36 @@ void get_best_moves_wrapper(Board* board, coordinates_list* list_of_moves,
          if (max_score < cur_score) {
             max_score = cur_score;
             destroy(mas_lists_of_moves[i]);
+            //free(mas_lists_of_moves[i]);
             arg_max_score = i;
+            //free(mas_boards[i]);
          }
          else {
             destroy(mas_lists_of_moves[i]);
+            //free(mas_lists_of_moves[i]);
          }
     }
     list_of_moves = mas_lists_of_moves[arg_max_score];
     movable_cat->height = mas_movable_cat[arg_max_score].height;
     movable_cat->width = mas_movable_cat[arg_max_score].width;
+    free(cur_board);
 }
 
 void get_ai_move(Board* board, coordinates_list* moves, coordinates* cur) {
     int recursion_num = 3; // % 2 != 0
     get_best_moves_wrapper(board, moves, cur, recursion_num);
+}
+
+int main() {
+    Board b;
+    initB(&b);
+    print_board(&b);
+    coordinates_list movs;
+    coordinates cat;
+    printf("hey\n");
+    get_ai_move(&b, &movs, &cat);
+    printf("cat - %d, %d\nmovs - ", cat.height, cat.width);
+    print(&movs);
+
+    return 0;
 }

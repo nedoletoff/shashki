@@ -150,7 +150,7 @@ void pop_back(coordinates_list* l, coordinates* res)
   --l->size;
 }
 
-void pop_front(coordinates_list, coordinates*)
+void pop_front(coordinates_list* l, coordinates* res)
 {
   if (l->size == 0)
     return;

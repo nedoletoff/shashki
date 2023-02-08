@@ -2,8 +2,8 @@ import ctypes
 import datetime
 import os
 
-libc = ctypes.CDLL("model/board.dll")
 path = "saves/"
+libc = ctypes.CDLL("model/board.dll")
 
 
 # board.c structure
@@ -43,7 +43,7 @@ class NodeBSt(ctypes.Structure):
     pass
 
 
-NodeBSt._fields_ = [('val', BoardSt),
+NodeBSt._fields_ = [('value', BoardSt),
                     ('prev', ctypes.POINTER(NodeSt)),
                     ('next', ctypes.POINTER(NodeSt))]
 
@@ -56,6 +56,7 @@ class BoardsListSt(ctypes.Structure):
 
 # board.c functions
 libc.initBoard.restype = BoardSt
+libc.get_Board.restype = BoardSt
 libc.is_game_over.restype = ctypes.c_char
 libc.get_white_num.restype = ctypes.c_int
 libc.get_grey_num.restype = ctypes.c_int
@@ -134,7 +135,7 @@ class Board:
         self.save_board()
 
     def write_move(self, c1: Cords, c2: Cords):
-        #libc.printBL(self.list_boards)
+        # libc.printBL(self.list_boards)
         with open(self.savefile, 'a+') as saves:
             if self.lines_num != self.move_num:
                 saves.write(str(self.move_num) + ':\t' + c1.to_symbolic_literal() + ':' + c2.to_symbolic_literal())
@@ -167,8 +168,8 @@ class Board:
                 saves.truncate()
 
     def save_board(self):
-        print("save_board")
-        libc.push_back(self.list_boards, self.board_p)
+        t = libc.get_Board(self.board_p)
+        libc.push_back(self.list_boards, t)
         print(self.list_boards.contents.size)
 
     def change_board_to_prev(self):
@@ -236,6 +237,18 @@ class Board:
             for j in i:
                 print(j, end='')
             print()
+
+    def make_ai_move(self):
+        list_p = ctypes.pointer(CoordinatesListSt())
+        libc.initCL(list_p)
+        cur_cat = ctypes.pointer(CoordinatesSt())
+
+        libc.get_ai_move(self.board_p, list_p, cur_cat)
+        moves = c_list_p_to_python_list(list_p)
+        libc.destroy(list_p)
+        self.move_cat(cur_cat.contents, moves[0])
+        for i in range(1, moves.__len__()):
+            self.move_cat(moves[i - 1], moves[i])
 
 
 if __name__ == "__main__":

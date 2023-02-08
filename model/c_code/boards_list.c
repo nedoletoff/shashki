@@ -28,16 +28,12 @@ void destroyBL(boards_list* l)		//O(n)
 	}
 }
 
-void push_backBL(boards_list* l, Board* val)	//O(1)
+void push_backBL(boards_list* l, Board val)	//O(1)
 {
     node_b* n;
 	node_b* cur;
 	n = (node_b*) malloc(sizeof(node_b));
-	printf("Damn\n");
-    print_board(val);
-
-    get_copy(val, &n->value);
-
+	n->value = val;
     n->next = NULL;
 	if (l->head == NULL)
 	{

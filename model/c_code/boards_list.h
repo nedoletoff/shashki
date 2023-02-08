@@ -19,7 +19,7 @@ boards_list initBoardsList();
 void initBL(boards_list*);
 
 void destroyBL(boards_list*);
-void push_backBL(boards_list*, Board*);
+void push_backBL(boards_list*, Board);
 void printBL(boards_list*);
 void pop_backBL(boards_list*, Board*);
 
