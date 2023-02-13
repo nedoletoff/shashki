@@ -3,9 +3,8 @@ import time
 import pygame
 import model.board
 import model.text_viewer
+import win_dialog
 import logging
-import sys
-import subprocess
 
 logging.basicConfig(
     filename="logs.log",
@@ -40,7 +39,7 @@ class Game:
         self.res = (self.width, self.height)
 
         pygame.init()
-        pygame.display.set_caption("Кошашки")
+        pygame.display.set_caption("Coshashki")
         # load images
         pygame.display.set_icon(pygame.image.load("images/cotologo.png"))
         self.field = pygame.image.load("images/field.png")
@@ -201,11 +200,13 @@ class Game:
                     if is_in_rect(l := [0, self.window_size, int(self.window_size / 2), self.button_w], mouse):
                         if board.get_turn() == 'w':
                             print("grey wins")
-                            board.write_win('g')
+                            w = win_dialog.WinDialog('g')
+                            # board.write_win('g')
                             return
                         else:
                             print("white wins")
-                            board.write_win('w')
+                            w = win_dialog.WinDialog('w')
+                            # board.write_win('w')
                             return
 
                     if is_in_rect(l := [w := int(self.window_size / 2), self.window_size, w, self.button_w], mouse):
@@ -263,9 +264,9 @@ class Game:
             pygame.display.update()
 
             if board.is_game_ended() != 'n':
+                w = win_dialog.WinDialog(board.is_game_ended())
+                # print(board.is_game_ended(), " win")
                 break
-
-        print(board.is_game_ended(), " win")
 
 
 def main():
@@ -274,8 +275,10 @@ def main():
     while True:
         if mode == 'bot_game':
             game.draw_game('bot')
+            mode = game.start_menu()
         if mode == 'human_game':
             game.draw_game('human')
+            mode = game.start_menu()
         if mode == 'story':
             try:
                 model.text_viewer.open_list_files()
