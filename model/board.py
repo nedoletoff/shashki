@@ -179,6 +179,7 @@ class Board:
         cur = self.list_boards[-1]
         self.list_boards.pop(-1)
         self.board_p.contents = pickle.loads(cur)
+        libc.print_board(self.board_p)
         #libc.pop_backBL(self.list_boards, self.board_p)
         #print(self.list_boards.contents.size)
         #self.delete_move()
@@ -201,10 +202,10 @@ class Board:
         return r.decode("utf-8")
 
     def change_turn(self):
-        self.save_board()
         libc.change_turn_and_finally_eat(self.board_p)
         self.move_num += 1
         self.write_newline()
+        self.save_board()
 
     def get_turn(self) -> str:
         return self.board_p.contents.turn.decode("utf-8")
@@ -230,6 +231,7 @@ class Board:
         if c2.in_list(self.get_moves(c1)):
             libc.move(self.board_p, c1.to_CoordinatesSt(), c2.to_CoordinatesSt())
             self.write_move(c1, c2)
+            libc.print_board(self.board_p)
             return True
         return False
 

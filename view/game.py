@@ -209,7 +209,6 @@ class Game:
 
                     if is_in_rect(l := [w := int(self.window_size / 2), self.window_size, w, self.button_w], mouse):
                         board.change_board_to_prev()
-                        print('back')
                         state = "not selected, move has not done"
                         selected = None
                         movable_cats = board.update_get_movable()
