@@ -1,7 +1,6 @@
 import ctypes
 import datetime
 import os
-import copy
 import pickle
 
 path = "saves/"
@@ -65,7 +64,6 @@ libc.get_grey_num.restype = ctypes.c_int
 libc.move_cat.restype = ctypes.c_int
 
 # coordinates_list functions
-# libc.initCoordinatesArray.restype = ctypes.POINTER(CoordinatesListSt)
 libc.initCoordinatesList.restype = CoordinatesListSt
 
 
@@ -137,7 +135,6 @@ class Board:
         self.save_board()
 
     def write_move(self, c1: Cords, c2: Cords):
-        # libc.printBL(self.list_boards)
         with open(self.savefile, 'a+') as saves:
             if self.lines_num != self.move_num:
                 saves.write(str(self.move_num) + ':\t' + c1.to_symbolic_literal() + ':' + c2.to_symbolic_literal())
@@ -151,6 +148,8 @@ class Board:
                 saves.write("White wins\n")
             elif win == 'g':
                 saves.write("Grey wins\n")
+            elif win == 'o':
+                saves.write("Draw\n")
 
     def write_newline(self):
         with open(self.savefile, 'a+') as saves:
@@ -171,18 +170,11 @@ class Board:
 
     def save_board(self):
         self.list_boards.append(pickle.dumps(self.board_p.contents))
-        #cur = copy.deepcopy(self.board_p.contents)
-        #libc.push_back(self.list_boards, cur)
-        #libc.printBL(self.list_boards)
 
     def change_board_to_prev(self):
         cur = self.list_boards[-1]
         self.list_boards.pop(-1)
         self.board_p.contents = pickle.loads(cur)
-        libc.print_board(self.board_p)
-        #libc.pop_backBL(self.list_boards, self.board_p)
-        #print(self.list_boards.contents.size)
-        #self.delete_move()
 
     def get_grid(self) -> list:
         grid = [[0 for i in range(8)] for j in range(8)]
@@ -231,9 +223,13 @@ class Board:
         if c2.in_list(self.get_moves(c1)):
             libc.move(self.board_p, c1.to_CoordinatesSt(), c2.to_CoordinatesSt())
             self.write_move(c1, c2)
-            libc.print_board(self.board_p)
             return True
         return False
+
+    def _move_ai_cat(self, c1: Cords, c2: Cords):
+        libc.move(self.board_p, c1.to_CoordinatesSt(), c2.to_CoordinatesSt())
+        self.write_move(c1, c2)
+
 
     def can_eat(self, cell: Cords) -> bool:
         cell_st = cell.to_CoordinatesSt()
@@ -253,10 +249,13 @@ class Board:
 
         libc.get_ai_move(self.board_p, list_p, cur_cat)
         moves = c_list_p_to_python_list(list_p)
+        cur = Cords(cur_cat.contents)
         libc.destroy(list_p)
-        self.move_cat(cur_cat.contents, moves[0])
-        for i in range(1, moves.__len__()):
-            self.move_cat(moves[i - 1], moves[i])
+        while len(moves) > 0:
+            print(len(moves))
+            self._move_ai_cat(cur, moves[-1])
+            cur = moves[-1]
+            moves.pop(-1)
 
 
 if __name__ == "__main__":

@@ -13,6 +13,8 @@ class WinDialog:
             message = "White wins"
         if cat == 'g':
             message = "Grey wins"
+        if cat == 'o':
+            message = "Draw"
 
         w = tkinter.messagebox.showinfo(title="Coshashki", message=message) # если убрать w = перестает работать
 

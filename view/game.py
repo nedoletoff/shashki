@@ -2,7 +2,7 @@ import time
 
 import pygame
 import model.board
-from model.text_viewer import *
+from view.text_viewer import *
 from win_dialog import *
 import logging
 
@@ -186,8 +186,21 @@ class Game:
 
         while True:
             if mode == 'bot' and board.get_turn() == 'g' and board.is_game_ended() == 'n':
+                time.sleep(0.03)
                 board.make_ai_move()
                 board.change_turn()
+                state = "not selected, move has not done"
+                cur = None
+                selected = None
+                movable_cats = board.update_get_movable()
+                moves = list()
+                field_list = board.get_grid()
+                has_eat = board.get_eaten()
+                if (cat := board.is_game_ended()) != 'n':
+                    board.write_win(cat)
+                    open_win_dialog(cat)
+                    # print(board.is_game_ended(), " win")
+                    break
             time.sleep(0.1)
             mouse = pygame.mouse.get_pos()
             self.draw_buttons()

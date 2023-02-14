@@ -33,9 +33,9 @@ void initB(Board* board) {
     for (char i = 0; i < 8; i++)
         for (char j = 0; j < 8; j++) {
             if ((i + j) % 2 == 0 && (i < 3))
-                board->grid[i][j] = 'G';
+                board->grid[i][j] = 'g';
             else if ((i + j) % 2 == 0 && i > 4)
-                board->grid[i][j] = 'W';
+                board->grid[i][j] = 'w';
             else
                 board->grid[i][j] = ' ';
         }
@@ -77,9 +77,9 @@ char is_game_over(Board* board) {
         return board->turn;
     }
     if (get_white_num(*board) == 0)
-        return 'w';
+        return 'g'; // w для обычных
     if (get_grey_num(*board)== 0)
-        return 'g';
+        return 'w'; // g для обычных
     if (board->no_eat_counter == 29)
         return 'o';
     return 'n';
@@ -380,7 +380,7 @@ void get_king_moves(Board* board, coordinates cords, coordinates_list* list) {
     cur.width = cords.width;
     state = 0;
     if (mode == 1)
-        while (cur.height < 8 && cur.width < 8) {
+        while (cur.height < 7 && cur.width < 7) {
             cur.height++;
             cur.width++;
             if (lower_case(get_cat(board, cur)) == lower_case(cat)) {
@@ -401,7 +401,7 @@ void get_king_moves(Board* board, coordinates cords, coordinates_list* list) {
                 push_back(list, cur);
         }
     else if (mode == 2)
-        while (cur.height < 8 && cur.width < 8) {
+        while (cur.height < 7 && cur.width < 7) {
             cur.height++;
             cur.width++;
             if (get_cat(board, cur) != ' ')
@@ -449,7 +449,7 @@ void get_king_moves(Board* board, coordinates cords, coordinates_list* list) {
     cur.width = cords.width;
     state = 0;
     if (mode == 1)
-        while (cur.height < 8 && cur.width > 0) {
+        while (cur.height < 7 && cur.width > 0) {
             cur.height++;
             cur.width--;
             if (lower_case(get_cat(board, cur)) == lower_case(cat)) {
@@ -471,7 +471,7 @@ void get_king_moves(Board* board, coordinates cords, coordinates_list* list) {
 
         }
     else if (mode == 2)
-        while (cur.height < 8 && cur.width > 0) {
+        while (cur.height < 7 && cur.width > 0) {
             cur.height++;
             cur.width--;
             if (get_cat(board, cur) != ' ')
@@ -483,7 +483,7 @@ void get_king_moves(Board* board, coordinates cords, coordinates_list* list) {
     cur.width = cords.width;
     state = 0;
     if (mode == 1)
-        while (cur.height > 0 && cur.width < 8) {
+        while (cur.height > 0 && cur.width < 7) {
             cur.height--;
             cur.width++;
             if (lower_case(get_cat(board, cur)) == lower_case(cat)) {
@@ -506,7 +506,7 @@ void get_king_moves(Board* board, coordinates cords, coordinates_list* list) {
 
         }
     else if (mode == 2)
-        while (cur.height > 0 && cur.width < 8) {
+        while (cur.height > 0 && cur.width < 7) {
             cur.height--;
             cur.width++;
             if (get_cat(board, cur) != ' ')
