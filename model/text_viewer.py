@@ -1,6 +1,6 @@
+import win32ui # если убрать перестает работать
 import logging
 
-import win32ui
 from tkinter import *
 from tkinter import scrolledtext
 from tkinter import filedialog
@@ -58,7 +58,6 @@ def open_list_files():
 
     menu = Menu(window)
 
-    # set tearoff to 0
     file_dropdown = Menu(menu, tearoff=False)
     file_dropdown.add_command(label='Open', command=lambda: open_file_and_update(txt))
     menu.add_cascade(label='Another', menu=file_dropdown)

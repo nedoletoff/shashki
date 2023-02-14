@@ -2,8 +2,8 @@ import time
 
 import pygame
 import model.board
-import model.text_viewer
-import win_dialog
+from model.text_viewer import *
+from win_dialog import *
 import logging
 
 logging.basicConfig(
@@ -199,21 +199,19 @@ class Game:
                 if ev.type == pygame.MOUSEBUTTONDOWN:
                     if is_in_rect(l := [0, self.window_size, int(self.window_size / 2), self.button_w], mouse):
                         if board.get_turn() == 'w':
-                            print("grey wins")
-                            w = win_dialog.WinDialog('g')
-                            # board.write_win('g')
+                            open_win_dialog('g')
+                            board.write_win('g')
                             return
                         else:
-                            print("white wins")
-                            w = win_dialog.WinDialog('w')
-                            # board.write_win('w')
+                            open_win_dialog('w')
+                            board.write_win('w')
                             return
 
                     if is_in_rect(l := [w := int(self.window_size / 2), self.window_size, w, self.button_w], mouse):
                         board.change_board_to_prev()
+                        print('back')
                         state = "not selected, move has not done"
                         selected = None
-                        board = model.board.Board()
                         movable_cats = board.update_get_movable()
                         moves = list()
                         field_list = board.get_grid()
@@ -263,8 +261,9 @@ class Game:
             draw_cats(field_list)
             pygame.display.update()
 
-            if board.is_game_ended() != 'n':
-                w = win_dialog.WinDialog(board.is_game_ended())
+            if (cat := board.is_game_ended()) != 'n':
+                board.write_win(cat)
+                open_win_dialog(cat)
                 # print(board.is_game_ended(), " win")
                 break
 
@@ -281,7 +280,7 @@ def main():
             mode = game.start_menu()
         if mode == 'story':
             try:
-                model.text_viewer.open_list_files()
+                open_list_files()
             except Exception as e:
                 log.exception(e)
             mode = game.start_menu()

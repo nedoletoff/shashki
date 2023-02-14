@@ -1,6 +1,8 @@
 import ctypes
 import datetime
 import os
+import copy
+import pickle
 
 path = "saves/"
 libc = ctypes.CDLL("model/board.dll")
@@ -131,7 +133,7 @@ class Board:
         self.move_num = 1
         self.lines_num = 0
         self.list_boards = ctypes.pointer(BoardsListSt())
-        libc.initBL(self.list_boards)
+        self.list_boards = list()
         self.save_board()
 
     def write_move(self, c1: Cords, c2: Cords):
@@ -168,13 +170,18 @@ class Board:
                 saves.truncate()
 
     def save_board(self):
-        t = libc.get_Board(self.board_p)
-        libc.push_back(self.list_boards, t)
-        print(self.list_boards.contents.size)
+        self.list_boards.append(pickle.dumps(self.board_p.contents))
+        #cur = copy.deepcopy(self.board_p.contents)
+        #libc.push_back(self.list_boards, cur)
+        #libc.printBL(self.list_boards)
 
     def change_board_to_prev(self):
-        libc.pop_backBL(self.list_boards, self.board_p)
-        self.delete_move()
+        cur = self.list_boards[-1]
+        self.list_boards.pop(-1)
+        self.board_p.contents = pickle.loads(cur)
+        #libc.pop_backBL(self.list_boards, self.board_p)
+        #print(self.list_boards.contents.size)
+        #self.delete_move()
 
     def get_grid(self) -> list:
         grid = [[0 for i in range(8)] for j in range(8)]
@@ -190,11 +197,11 @@ class Board:
         r = libc.is_game_over(self.board_p)
         if r.decode("utf-8") != 'n':
             libc.destroy(self.list_boards)
-            self.write_win(r.decode("utf-8"))
 
         return r.decode("utf-8")
 
     def change_turn(self):
+        self.save_board()
         libc.change_turn_and_finally_eat(self.board_p)
         self.move_num += 1
         self.write_newline()
@@ -223,7 +230,6 @@ class Board:
         if c2.in_list(self.get_moves(c1)):
             libc.move(self.board_p, c1.to_CoordinatesSt(), c2.to_CoordinatesSt())
             self.write_move(c1, c2)
-            self.save_board()
             return True
         return False
 
