@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 long long count;
+const int max_size = 3;
 
 int get_score(Board* board) {
     int score = 0;
@@ -26,18 +27,16 @@ int get_score(Board* board) {
 }
 
 int get_best_moves(Board* board, int deep, char color) {
-    printf("deep - %d\n", deep);
-    print_board(board);
+    // вспомогательные
+    char that_turn = board->turn;
+    int max_score = -1;
+    int arg_max_score;
+    int max_scores[] = {-1, -1, -1};
     if (deep <= 0)
         return get_score(board);
-    change_turn_and_finally_eat(board);
     if (is_game_over(board) == color)
         return 1000;
 
-    int max_score = -1;
-    int max_scores[] = {-1, -1, -1};
-
-    const int max_size = 3;
     Board* cur_board = (Board*) malloc(sizeof(Board));
 
     // изменяемые
@@ -68,7 +67,8 @@ int get_best_moves(Board* board, int deep, char color) {
         while (moves_cur_cat->size > 0) {
             get_copy(board, cur_board);
             pop_back(moves_cur_cat, &cur_move);
-            move_cat(cur_board, cur_movable_cat, cur_move);
+            move(cur_board, cur_movable_cat, cur_move);
+            change_turn_and_finally_eat(cur_board);
             cur_score = get_score(cur_board);
             if (size < max_size) {
                 mas_boards[size] = cur_board;
@@ -85,15 +85,20 @@ int get_best_moves(Board* board, int deep, char color) {
             }
         }
     }
+
     // ищем ходы со съедением
     while (eat_on_turn->size > 0) {
         cur_score = -1;
         pop_back(eat_on_turn, &cur_movable_cat);
         get_moves(board, cur_movable_cat, moves_cur_cat);
         while (moves_cur_cat->size > 0) {
+
+            coordinates_list* temp_moves = (coordinates_list*) malloc(sizeof(coordinates_list));
+            initCL(temp_moves);
             get_copy(board, cur_board);
             pop_back(moves_cur_cat, &cur_move);
-            move_cat(cur_board, cur_movable_cat, cur_move);
+            push_back(temp_moves, cur_move);
+            move(cur_board, cur_movable_cat, cur_move);
             //используем все возможные ходы
             while (is_able_to_move(cur_board, cur_move) == 1) {
                 coordinates temp_cat;
@@ -102,13 +107,16 @@ int get_best_moves(Board* board, int deep, char color) {
 
                 coordinates_list* t_moves = (coordinates_list*) malloc(sizeof(coordinates_list));
                 initCL(t_moves);
-    printf("deep - %d\n", deep);
                 get_moves(cur_board, temp_cat, t_moves);
                 pop_back(t_moves, &cur_move);
-                destroy(t_moves);
-                free(t_moves);
-                move_cat(cur_board, temp_cat, cur_move);
+                push_back(temp_moves, cur_move);
+                printf("temp - %d,%d; cur - %d,%d\n", temp_cat.height, temp_cat.width,
+                cur_move.height, cur_move.width);
+                print_board(cur_board);
+            //printf("cur_move: %d, %d", cur_move.height, cur_move.width);
+                move(cur_board, temp_cat, cur_move);
             }
+            change_turn_and_finally_eat(cur_board);
 
             cur_score = get_score(cur_board);
             if (size < max_size) {
@@ -116,31 +124,41 @@ int get_best_moves(Board* board, int deep, char color) {
                 max_scores[size++] = cur_score;
             }
             else {
-                for (int i = 0; i < max_size; i++)
+                char check = 1;
+                for (int i = 0; i < max_size; i++) {
                     if (cur_score > max_scores[i]) {
+                        check = 0;
                         max_scores[i] = cur_score;
+                        mas_boards[i] = cur_board;
                         break;
                     }
-
+                }
+                if (check) {
+                destroy(temp_moves);
+                free(temp_moves);
+                }
             }
         }
     }
 
-    printf("deep - %d\n", deep);
-    if (size == 1) {
-        return get_score(cur_board);
-    }
-
     // вызываем рекурсию
     for (int i = 0; i < size; i++) {
-         //print_board(mas_boards[i]);
          cur_score = get_best_moves(mas_boards[i], deep-1, color);
-         printf("damn\n");
          if (max_score < cur_score) {
             max_score = cur_score;
          }
         free(mas_boards[i]);
     }
+
+    free(cur_board);
+    // освобождаем выделенную память
+    destroy(moves_cur_cat);
+    free(moves_cur_cat);
+    destroy(mov_on_turn);
+    free(mov_on_turn);
+    destroy(eat_on_turn);
+    free(eat_on_turn);
+    free(cur_board);
     return max_score;
 }
 
@@ -152,7 +170,6 @@ void get_best_moves_wrapper(Board* board, coordinates_list* list_of_moves,
     int arg_max_score;
     int max_scores[] = {-1, -1, -1};
 
-    const int max_size = 3;
     Board* cur_board = (Board*) malloc(sizeof(Board));
 
     // изменяемые
@@ -187,7 +204,8 @@ void get_best_moves_wrapper(Board* board, coordinates_list* list_of_moves,
         while (moves_cur_cat->size > 0) {
             get_copy(board, cur_board);
             pop_back(moves_cur_cat, &cur_move);
-            move_cat(cur_board, cur_movable_cat, cur_move);
+            move(cur_board, cur_movable_cat, cur_move);
+            change_turn_and_finally_eat(cur_board);
             cur_score = get_score(cur_board);
             if (size < max_size) {
                 mas_boards[size] = cur_board;
@@ -197,7 +215,7 @@ void get_best_moves_wrapper(Board* board, coordinates_list* list_of_moves,
                 push_back(mas_lists_of_moves[size++], cur_move);
             }
             else {
-                for (int i = 0; i < max_size; i++) {
+                for (int i = 0; i < max_size; i++) { // ищем максимум для хода соперника
                     if (cur_score > max_scores[i]) {
                         mas_boards[i] = cur_board;
                         max_scores[i] = cur_score;
@@ -210,6 +228,7 @@ void get_best_moves_wrapper(Board* board, coordinates_list* list_of_moves,
             }
         }
     }
+
     // ищем ходы со съедением
     while (eat_on_turn->size > 0) {
         cur_score = -1;
@@ -221,7 +240,7 @@ void get_best_moves_wrapper(Board* board, coordinates_list* list_of_moves,
             get_copy(board, cur_board);
             pop_back(moves_cur_cat, &cur_move);
             push_back(temp_moves, cur_move);
-            move_cat(cur_board, cur_movable_cat, cur_move);
+            move(cur_board, cur_movable_cat, cur_move);
             //используем все возможные ходы
             while (is_able_to_move(cur_board, cur_move) == 1) {
                 coordinates temp_cat;
@@ -233,11 +252,12 @@ void get_best_moves_wrapper(Board* board, coordinates_list* list_of_moves,
                 get_moves(cur_board, temp_cat, t_moves);
                 pop_back(t_moves, &cur_move);
                 push_back(temp_moves, cur_move);
-                move_cat(cur_board, temp_cat, cur_move);
+                move(cur_board, temp_cat, cur_move);
             }
+            change_turn_and_finally_eat(cur_board);
 
             cur_score = get_score(cur_board);
-            if (size < max_size) {
+            if (size < max_size) {  // ищем максимум для хода соперника
                 mas_boards[size] = cur_board;
                 max_scores[size] = cur_score;
                 mas_movable_cat[size] = cur_movable_cat;
@@ -268,46 +288,62 @@ void get_best_moves_wrapper(Board* board, coordinates_list* list_of_moves,
         list_of_moves = mas_lists_of_moves[0];
         movable_cat->height = mas_movable_cat[0].height;
         movable_cat->width = mas_movable_cat[0].width;
-        //free(cur_board);
+        free(cur_board);
         return;
     }
 
     // вызываем рекурсию
     for (int i = 0; i < size; i++) {
-         cur_score = get_best_moves(mas_boards[i], deep-1, that_turn);
-         if (max_score < cur_score) {
+         if (deep > 1)
+            cur_score = get_best_moves(mas_boards[i], deep-1, that_turn);
+         else
+            cur_score = max_scores[i];
+         if (cur_score) {
             max_score = cur_score;
-            destroy(mas_lists_of_moves[i]);
-            //free(mas_lists_of_moves[i]);
             arg_max_score = i;
-            //free(mas_boards[i]);
-         }
-         else {
-            destroy(mas_lists_of_moves[i]);
-            //free(mas_lists_of_moves[i]);
          }
     }
-    list_of_moves = mas_lists_of_moves[arg_max_score];
+    coordinates temp;
+    destroy(list_of_moves);
+
+    while (mas_lists_of_moves[arg_max_score]->size > 0) {
+        pop_front(mas_lists_of_moves[arg_max_score], &temp);
+        push_back(list_of_moves, temp);
+    }
+    for (int i = 0; i < size; i++) {
+        destroy(mas_lists_of_moves[i]);
+        free(mas_lists_of_moves[i]);
+        //free(mas_boards[i]);
+    }
     movable_cat->height = mas_movable_cat[arg_max_score].height;
     movable_cat->width = mas_movable_cat[arg_max_score].width;
+
+
+    // освобождаем выделенную память
+    destroy(moves_cur_cat);
+    free(moves_cur_cat);
+    destroy(mov_on_turn);
+    free(mov_on_turn);
+    destroy(eat_on_turn);
+    free(eat_on_turn);
     free(cur_board);
 }
 
 void get_ai_move(Board* board, coordinates_list* moves, coordinates* cur) {
-    int recursion_num = 3; // % 2 != 0
+    int recursion_num = 5; // % 2 != 0
     get_best_moves_wrapper(board, moves, cur, recursion_num);
 }
 
 int main() {
     Board b;
     initB(&b);
-    print_board(&b);
-    coordinates_list movs;
+    coordinates_list moves;
+    initCL(&moves);
     coordinates cat;
     printf("hey\n");
-    get_ai_move(&b, &movs, &cat);
+    get_ai_move(&b, &moves, &cat);
     printf("cat - %d, %d\nmovs - ", cat.height, cat.width);
-    print(&movs);
+    print(&moves);
 
     return 0;
 }

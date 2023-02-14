@@ -414,7 +414,7 @@ void get_king_moves(Board* board, coordinates cords, coordinates_list* list) {
     cur.width = cords.width;
     state = 0;
     if (mode == 1)
-        while (cur.height >= 0 && cur.width >= 0) {
+        while (cur.height > 0 && cur.width > 0) {
             cur.height--;
             cur.width--;
               if (lower_case(get_cat(board, cur)) == lower_case(cat)) {
@@ -436,7 +436,7 @@ void get_king_moves(Board* board, coordinates cords, coordinates_list* list) {
 
         }
     else if (mode == 2)
-        while (cur.height >= 0 && cur.width >= 0) {
+        while (cur.height > 0 && cur.width > 0) {
             cur.height--;
             cur.width--;
             if (get_cat(board, cur) != ' ')
@@ -449,7 +449,7 @@ void get_king_moves(Board* board, coordinates cords, coordinates_list* list) {
     cur.width = cords.width;
     state = 0;
     if (mode == 1)
-        while (cur.height < 8 && cur.width >= 0) {
+        while (cur.height < 8 && cur.width > 0) {
             cur.height++;
             cur.width--;
             if (lower_case(get_cat(board, cur)) == lower_case(cat)) {
@@ -471,7 +471,7 @@ void get_king_moves(Board* board, coordinates cords, coordinates_list* list) {
 
         }
     else if (mode == 2)
-        while (cur.height < 8 && cur.width >= 0) {
+        while (cur.height < 8 && cur.width > 0) {
             cur.height++;
             cur.width--;
             if (get_cat(board, cur) != ' ')
@@ -483,7 +483,7 @@ void get_king_moves(Board* board, coordinates cords, coordinates_list* list) {
     cur.width = cords.width;
     state = 0;
     if (mode == 1)
-        while (cur.height >= 0 && cur.width < 8) {
+        while (cur.height > 0 && cur.width < 8) {
             cur.height--;
             cur.width++;
             if (lower_case(get_cat(board, cur)) == lower_case(cat)) {
@@ -506,7 +506,7 @@ void get_king_moves(Board* board, coordinates cords, coordinates_list* list) {
 
         }
     else if (mode == 2)
-        while (cur.height >= 0 && cur.width < 8) {
+        while (cur.height > 0 && cur.width < 8) {
             cur.height--;
             cur.width++;
             if (get_cat(board, cur) != ' ')
