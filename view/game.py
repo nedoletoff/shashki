@@ -199,7 +199,6 @@ class Game:
                 if (cat := board.is_game_ended()) != 'n':
                     board.write_win(cat)
                     open_win_dialog(cat)
-                    # print(board.is_game_ended(), " win")
                     break
             time.sleep(0.1)
             mouse = pygame.mouse.get_pos()
@@ -276,7 +275,7 @@ class Game:
             if (cat := board.is_game_ended()) != 'n':
                 board.write_win(cat)
                 open_win_dialog(cat)
-                # print(board.is_game_ended(), " win")
+                print(board.is_game_ended(), " win")
                 break
 
 

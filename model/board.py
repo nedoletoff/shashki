@@ -188,8 +188,6 @@ class Board:
 
     def is_game_ended(self) -> str:
         r = libc.is_game_over(self.board_p)
-        if r.decode("utf-8") != 'n':
-            libc.destroy(self.list_boards)
 
         return r.decode("utf-8")
 
@@ -252,7 +250,6 @@ class Board:
         cur = Cords(cur_cat.contents)
         libc.destroy(list_p)
         while len(moves) > 0:
-            print(len(moves))
             self._move_ai_cat(cur, moves[-1])
             cur = moves[-1]
             moves.pop(-1)
