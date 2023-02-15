@@ -3,7 +3,7 @@ import time
 import pygame
 import model.board
 from view.text_viewer import *
-from win_dialog import *
+from view.win_dialog import *
 import logging
 
 logging.basicConfig(

@@ -188,7 +188,6 @@ class Board:
 
     def is_game_ended(self) -> str:
         r = libc.is_game_over(self.board_p)
-
         return r.decode("utf-8")
 
     def change_turn(self):
