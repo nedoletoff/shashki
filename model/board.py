@@ -9,7 +9,7 @@ libc = ctypes.CDLL("model/board.dll")
 
 # board.c structure
 class BoardSt(ctypes.Structure):
-    _fields_ = [('grid', ctypes.c_char * 8 * 8),
+    _fields_ = [('grid', ctypes.c_char * 10 * 10),
                 ('white_num', ctypes.c_char),
                 ('grey_num', ctypes.c_char),
                 ('turn', ctypes.c_char),
@@ -80,8 +80,8 @@ class Cords:
         return res
 
     def to_symbolic_literal(self) -> str:
-        literals = ('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H')
-        nums = ('8', '7', '6', '5', '4', '3', '2', '1')
+        literals = ('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J')
+        nums = ('10', '9', '8', '7', '6', '5', '4', '3', '2', '1')
         res = literals[self.width] + nums[self.width]
         return res
 
@@ -177,9 +177,9 @@ class Board:
         self.board_p.contents = pickle.loads(cur)
 
     def get_grid(self) -> list:
-        grid = [[0 for i in range(8)] for j in range(8)]
-        for i in range(8):
-            for j in range(8):
+        grid = [[0 for i in range(10)] for j in range(10)]
+        for i in range(10):
+            for j in range(10):
                 grid[i][j] = self.board_p.contents.grid[i][j].decode("utf-8")
         return grid
 

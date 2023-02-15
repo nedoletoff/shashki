@@ -2,20 +2,23 @@
 #include <stdlib.h>
 #include "board.h"
 #include "coordinates_list.h"
+const int size_board = 10;
+const int num_cat = 20;
+
 
 
 Board initBoard() {
     Board res;
     res.no_eat_counter = 0;
     res.turn = 'w';
-    res.white_num = 12;
-    res.grey_num = 12;
+    res.white_num = num_cat;
+    res.grey_num = num_cat;
     res.eaten = 0;
-    for (char i = 0; i < 8; i++)
-        for (char j = 0; j < 8; j++) {
-            if ((i + j) % 2 == 0 && (i < 3))
+    for (char i = 0; i < size_board; i++)
+        for (char j = 0; j < size_board; j++) {
+            if ((i + j) % 2 == 0 && (i < 4))
                 res.grid[i][j] = 'g';
-            else if ((i + j) % 2 == 0 && i > 4)
+            else if ((i + j) % 2 == 0 && i > 5)
                 res.grid[i][j] = 'w';
             else
                 res.grid[i][j] = ' ';
@@ -26,15 +29,15 @@ Board initBoard() {
 void initB(Board* board) {
     board->no_eat_counter = 0;
     board->turn = 'w';
-    board->white_num = 12;
-    board->grey_num = 12;
+    board->white_num = num_cat;
+    board->grey_num = num_cat;
     board->eaten = 0;
 
-    for (char i = 0; i < 8; i++)
-        for (char j = 0; j < 8; j++) {
-            if ((i + j) % 2 == 0 && (i < 3))
+    for (char i = 0; i < size_board; i++)
+        for (char j = 0; j < size_board; j++) {
+            if ((i + j) % 2 == 0 && (i < 4))
                 board->grid[i][j] = 'g';
-            else if ((i + j) % 2 == 0 && i > 4)
+            else if ((i + j) % 2 == 0 && i > 5)
                 board->grid[i][j] = 'w';
             else
                 board->grid[i][j] = ' ';
@@ -94,10 +97,10 @@ void change_turn(Board* board) {
 }
 
 char get_cat(Board* board, coordinates cords) {
-    if (cords.height < 0 || cords.height >= 8) {
+    if (cords.height < 0 || cords.height >= size_board) {
         return 0;
     }
-    if (cords.width < 0 || cords.width >= 8) {
+    if (cords.width < 0 || cords.width >= size_board) {
         return 0;
     }
 
@@ -124,10 +127,10 @@ int check_cat(Board* board, coordinates cords) {
 }
 
 int check_coordinates(coordinates cords) {
-    if (cords.height >= 8 || cords.height < 0)
+    if (cords.height >= size_board || cords.height < 0)
         return 1;
 
-    if (cords.width >= 8 || cords.width < 0)
+    if (cords.width >= size_board || cords.width < 0)
         return 1;
     return 0;
 }
@@ -181,7 +184,7 @@ int disable_cat(Board* board, coordinates cords) {
 
 int can_make_king(Board* board, coordinates cords) {
     char cat = get_cat(board, cords);
-    if (cat == 'w' && cords.height == 0 || cat == 'g' && cords.height == 7)
+    if (cat == 'w' && cords.height == 0 || cat == 'g' && cords.height == num_cat-1)
         return 1;
     return 0;
 }
@@ -190,7 +193,7 @@ int make_king(Board* board, coordinates cords) {
     char cat = get_cat(board, cords);
     if (cat == 'w' && cords.height == 0)
         board->grid[cords.height][cords.width] = 'W';
-    else if (cat == 'g' && cords.height == 7)
+    else if (cat == 'g' && cords.height == num_cat-1)
         board->grid[cords.height][cords.width] = 'G';
     else {
         return 1;
@@ -226,7 +229,7 @@ int is_king_able_to_move(Board* board, coordinates cords) {
     coordinates cur;
     cur.height = cords.height;
     cur.width = cords.width;
-    while (cur.height < 7 && cur.width < 7) {
+    while (cur.height < num_cat-1 && cur.width < num_cat-1) {
         cur.height++;
         cur.width++;
         if (lower_case(get_cat(board, cur)) == enemy) {
@@ -242,7 +245,7 @@ int is_king_able_to_move(Board* board, coordinates cords) {
     }
     cur.height = cords.height;
     cur.width = cords.width;
-    while (cur.height >= 1 && cur.width < 7) {
+    while (cur.height >= 1 && cur.width < num_cat-1) {
         cur.height--;
         cur.width++;
         if (lower_case(get_cat(board, cur)) == enemy) {
@@ -258,7 +261,7 @@ int is_king_able_to_move(Board* board, coordinates cords) {
     }
     cur.height = cords.height;
     cur.width = cords.width;
-    while (cur.height < 7 && cur.width >= 1) {
+    while (cur.height < num_cat-1 && cur.width >= 1) {
         cur.height++;
         cur.width--;
         if (lower_case(get_cat(board, cur)) == enemy) {
@@ -380,7 +383,7 @@ void get_king_moves(Board* board, coordinates cords, coordinates_list* list) {
     cur.width = cords.width;
     state = 0;
     if (mode == 1)
-        while (cur.height < 7 && cur.width < 7) {
+        while (cur.height < num_cat-1 && cur.width < num_cat-1) {
             cur.height++;
             cur.width++;
             if (lower_case(get_cat(board, cur)) == lower_case(cat)) {
@@ -401,7 +404,7 @@ void get_king_moves(Board* board, coordinates cords, coordinates_list* list) {
                 push_back(list, cur);
         }
     else if (mode == 2)
-        while (cur.height < 7 && cur.width < 7) {
+        while (cur.height < num_cat-1 && cur.width < num_cat-1) {
             cur.height++;
             cur.width++;
             if (get_cat(board, cur) != ' ')
@@ -449,7 +452,7 @@ void get_king_moves(Board* board, coordinates cords, coordinates_list* list) {
     cur.width = cords.width;
     state = 0;
     if (mode == 1)
-        while (cur.height < 7 && cur.width > 0) {
+        while (cur.height < num_cat-1 && cur.width > 0) {
             cur.height++;
             cur.width--;
             if (lower_case(get_cat(board, cur)) == lower_case(cat)) {
@@ -471,7 +474,7 @@ void get_king_moves(Board* board, coordinates cords, coordinates_list* list) {
 
         }
     else if (mode == 2)
-        while (cur.height < 7 && cur.width > 0) {
+        while (cur.height < num_cat-1 && cur.width > 0) {
             cur.height++;
             cur.width--;
             if (get_cat(board, cur) != ' ')
@@ -483,7 +486,7 @@ void get_king_moves(Board* board, coordinates cords, coordinates_list* list) {
     cur.width = cords.width;
     state = 0;
     if (mode == 1)
-        while (cur.height > 0 && cur.width < 7) {
+        while (cur.height > 0 && cur.width < num_cat-1) {
             cur.height--;
             cur.width++;
             if (lower_case(get_cat(board, cur)) == lower_case(cat)) {
@@ -506,7 +509,7 @@ void get_king_moves(Board* board, coordinates cords, coordinates_list* list) {
 
         }
     else if (mode == 2)
-        while (cur.height > 0 && cur.width < 7) {
+        while (cur.height > 0 && cur.width < num_cat-1) {
             cur.height--;
             cur.width++;
             if (get_cat(board, cur) != ' ')
@@ -673,8 +676,8 @@ int eat(Board* board, coordinates first, coordinates end) {
 }
 
 void change_turn_and_finally_eat(Board* board) {
-    for (int i = 0; i < 8; i++)
-        for (int j = 0; j < 8; j++)
+    for (int i = 0; i < size_board; i++)
+        for (int j = 0; j < size_board; j++)
             if (board->grid[i][j] == 'e') {
                 coordinates cords = {i, j};
                 remove_cat(board, cords);
@@ -709,8 +712,8 @@ int move_cat(Board* board, coordinates cords1, coordinates cords2) {
 void print_board(Board* board) {
     printf("%d - whites, %d - grays\n %c - turn\n", board->white_num, board->grey_num, board->turn);
 
-    for (int i = 0; i < 8; i++) {
-        for (int j = 0; j < 8; j++) {
+    for (int i = 0; i < size_board; i++) {
+        for (int j = 0; j < size_board; j++) {
             printf("%c", board->grid[i][j]);
         }
         printf("\n");
@@ -725,8 +728,8 @@ void get_movable_cat(Board* board, coordinates_list* moves, coordinates_list* ea
     int check = 1;
     char cat;
     board->has_moves = 0;
-    for (int i = 0; i < 8; i++)
-        for (int j = 0; j < 8; j++) {
+    for (int i = 0; i < size_board; i++)
+        for (int j = 0; j < size_board; j++) {
             coordinates cords = {i, j};
             cat = get_cat(board,cords);
                 //if (cat != 'w' && cat != 'g')
@@ -755,8 +758,8 @@ void get_movable_cat(Board* board, coordinates_list* moves, coordinates_list* ea
 }
 
 void get_copy(Board* self, Board* other) {
-    for (int i = 0; i < 8; ++i)
-        for (int j = 0; j < 8; ++j)
+    for (int i = 0; i < size_board; ++i)
+        for (int j = 0; j < size_board; ++j)
             other->grid[i][j] = self->grid[i][j];
 
     other->white_num = self->white_num;
@@ -769,8 +772,8 @@ void get_copy(Board* self, Board* other) {
 
 Board get_Board(Board* self) {
    Board res =  initBoard();
-   for (int i = 0; i < 8; ++i)
-        for (int j = 0; j < 8; ++j)
+   for (int i = 0; i < size_board; ++i)
+        for (int j = 0; j < size_board; ++j)
             res.grid[i][j] = self->grid[i][j];
 
     res.white_num = self->white_num;
@@ -782,3 +785,8 @@ Board get_Board(Board* self) {
 
 }
 
+
+int main() {
+    Board b = initBoard();
+    print_board(&b);
+}

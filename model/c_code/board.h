@@ -3,7 +3,7 @@
 
 
 typedef struct Board {
-    char grid[8][8];
+    char grid[10][10];
     char white_num;
     char grey_num;
     char turn;

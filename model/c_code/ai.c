@@ -332,17 +332,3 @@ void get_ai_move(Board* board, coordinates_list* moves, coordinates* cur) {
     int recursion_num = 5; // % 2 != 0
     get_best_moves_wrapper(board, moves, cur, recursion_num);
 }
-
-int main() {
-    Board b;
-    initB(&b);
-    coordinates_list moves;
-    initCL(&moves);
-    coordinates cat;
-    printf("hey\n");
-    get_ai_move(&b, &moves, &cat);
-    printf("cat - %d, %d\nmovs - ", cat.height, cat.width);
-    print(&moves);
-
-    return 0;
-}

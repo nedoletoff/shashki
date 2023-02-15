@@ -6,6 +6,9 @@ from view.text_viewer import *
 from view.win_dialog import *
 import logging
 
+m_size = 960
+m_num = 10
+
 logging.basicConfig(
     filename="logs.log",
     format='%(asctime)s %(levelname)s %(message)s',
@@ -21,7 +24,7 @@ def is_in_rect(rect: list, mouse: tuple) -> bool:
 
 def what_cell(mouse: tuple, size: int) -> model.board.Cords:
     res = model.board.Cords()
-    gap = int(size / 8)
+    gap = int(size / m_num)
     res.width = -1
     res.height = -1
     if 0 < mouse[0] <= size and 0 < mouse[1] <= size:
@@ -32,7 +35,7 @@ def what_cell(mouse: tuple, size: int) -> model.board.Cords:
 
 class Game:
     def __init__(self):
-        self.window_size = 768
+        self.window_size = m_size
         self.button_w = 40
         self.width = self.window_size
         self.height = self.window_size + self.button_w
@@ -42,7 +45,7 @@ class Game:
         pygame.display.set_caption("Coshashki")
         # load images
         pygame.display.set_icon(pygame.image.load("images/cotologo.png"))
-        self.field = pygame.image.load("images/field.png")
+        self.field = pygame.image.load("images/field1.png")
         self.grey_cat = pygame.image.load("images/grey.png")
         self.white_cat = pygame.image.load("images/white.png")
         self.grey_king = pygame.image.load("images/grey_king.png")
@@ -71,8 +74,8 @@ class Game:
         self.rect_size_w = int(self.window_size / 4)
 
         self.rect_width_sizes = [360, 308, 361, 106]
-        self.rect_height_sizes = [int(2 * self.window_size / 8), int(3 * self.window_size / 8),
-                                  int(4 * self.window_size / 8), int(5 * self.window_size / 8)]
+        self.rect_height_sizes = [int(2 * self.window_size / m_num), int(3 * self.window_size / m_num),
+                                  int(4 * self.window_size / m_num), int(5 * self.window_size / m_num)]
 
     def draw_buttons(self):
         mouse = pygame.mouse.get_pos()
@@ -89,9 +92,9 @@ class Game:
             pygame.draw.rect(self.screen, self.color_dark, l)
 
         self.screen.blit(give_up_text,
-                         (self.width / 8 + 68, self.window_size + 5))
+                         (self.width / m_num + 68, self.window_size + 5))
         self.screen.blit(back_text,
-                         (5 * self.width / 8 + 55, self.window_size + 5))
+                         (5 * self.width / m_num + 55, self.window_size + 5))
 
     def start_menu(self):
         # rendering a text written in
@@ -158,8 +161,8 @@ class Game:
         has_eat = board.get_eaten()
 
         def draw_cats(f_list: list):
-            for i, ipos in enumerate(range(0, self.window_size, self.window_size // 8)):
-                for j, jpos in enumerate(range(0, self.window_size, self.window_size // 8)):
+            for i, ipos in enumerate(range(0, self.window_size, self.window_size // m_num)):
+                for j, jpos in enumerate(range(0, self.window_size, self.window_size // m_num)):
                     if f_list[i][j] == 'w':
                         self.screen.blit(self.white_cat, (jpos, ipos))
                     if f_list[i][j] == 'W':
@@ -171,7 +174,7 @@ class Game:
 
         def draw_highlighted(clicked: model.board.Cords, mode: bool):
             global moves, movable_cat
-            gap = self.window_size // 8
+            gap = self.window_size // m_num
             if mode or clicked is None:  # highlight movable cats
                 for cat in movable_cats:
                     pygame.draw.rect(self.screen, self.color_blue,
